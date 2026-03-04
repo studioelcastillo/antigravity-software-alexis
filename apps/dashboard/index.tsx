@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './queryClient';
 import App from './App';
@@ -10,10 +11,14 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
+const base = import.meta.env.VITE_DASHBOARD_BASE || '/';
+const basename = base === '/' ? '/' : base.replace(/\/$/, '');
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
+    <BrowserRouter basename={basename}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

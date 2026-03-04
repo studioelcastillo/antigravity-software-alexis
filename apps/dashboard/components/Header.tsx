@@ -196,8 +196,20 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, isCollapsed, toggleColla
                    <p className="text-xs font-bold text-slate-600 truncate mt-1">{userData?.user_email || '...'}</p>
                 </div>
                 <div className="p-1.5 space-y-0.5">
-                  <button className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl transition-all group"><User size={18} className="text-slate-400 group-hover:text-amber-500" /><span className="text-sm font-bold">Mi Perfil</span></button>
-                  <button className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl transition-all group"><Shield size={18} className="text-slate-400 group-hover:text-amber-500" /><span className="text-sm font-bold">Seguridad</span></button>
+                  <button
+                    onClick={() => handleProtectedNavigate('myprofile')}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl transition-all group"
+                  >
+                    <User size={18} className="text-slate-400 group-hover:text-amber-500" />
+                    <span className="text-sm font-bold">Mi Perfil</span>
+                  </button>
+                  <button
+                    onClick={() => handleProtectedNavigate('change_password')}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl transition-all group"
+                  >
+                    <Shield size={18} className="text-slate-400 group-hover:text-amber-500" />
+                    <span className="text-sm font-bold">Seguridad</span>
+                  </button>
                   <button className="w-full flex items-center justify-between px-3 py-2.5 text-slate-600 hover:bg-slate-50 rounded-xl transition-all group"><div className="flex items-center gap-3"><Settings size={18} className="text-slate-400 group-hover:text-amber-500" /><span className="text-sm font-bold">Ajustes</span></div><ExternalLink size={14} className="text-slate-300" /></button>
                 </div>
                 <div className="p-1.5 mt-1 border-t border-slate-50"><button onClick={() => { setIsDropdownOpen(false); onLogoutClick(); }} className="w-full flex items-center gap-3 px-3 py-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all group"><LogOut size={18} className="group-hover:scale-110 transition-transform" /><span className="text-sm font-black uppercase tracking-widest">Cerrar Sesión</span></button></div>

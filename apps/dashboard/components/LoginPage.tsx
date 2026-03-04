@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Crown, ArrowRight, Lock, Mail, AlertCircle, CheckCircle2, ShieldCheck, ExternalLink, X } from 'lucide-react';
 import AuthService, { Policy } from '../AuthService';
+import { encryptSession } from '../utils/session';
 import PolicyModal from './PolicyModal';
 
 interface LoginPageProps {
@@ -82,12 +84,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         const { access_token, token_type, expires_at, user } = resData.data;
 
         // Persist session
-        localStorage.setItem('user', JSON.stringify({
+        const sessionUser = {
           access_token,
           token_type,
           expires_at,
           ...user,
-        }));
+        };
+        encryptSession('user', sessionUser);
+        encryptSession('dashboard_user', sessionUser);
+        encryptSession('token', access_token);
 
         showNotification('success', resData.message || '¡Ingreso exitoso!');
         
@@ -199,7 +204,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
                   <div>
                      <div className="flex justify-between items-center mb-2">
                         <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Contraseña</label>
-                        <a href="#" className="text-xs font-bold text-amber-600 hover:text-amber-700">¿Olvidaste tu contraseña?</a>
+                        <Link to="/recovery-password" className="text-xs font-bold text-amber-600 hover:text-amber-700">
+                          ¿Olvidaste tu contraseña?
+                        </Link>
                      </div>
                      <div className="relative group">
                         <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors" />

@@ -7,30 +7,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Create .env.production
-        run: |
-          echo "[SUPABASE]" > .env.production
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.production
-          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env.production
-          echo "" >> .env.production
-          echo "[OPENAI]" >> .env.production
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env.production
-          echo "" >> .env.production
-          echo "[ENVIRONMENT]" >> .env.production
-          echo "ENVIRONMENT=production" >> .env.production
-
-      - name: Build and Deploy
+      - name: Trigger Easypanel Deploy
         env:
-          EASYPANEL_PRODUCTION_WEBHOOK: ${{ secrets.EASYPANEL_PRODUCTION_WEBHOOK }}
-        run: node scripts/deploy.mjs production
+          WEBHOOK_URL: ${{ secrets.EASYPANEL_PRODUCTION_WEBHOOK }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "Error: EASYPANEL_PRODUCTION_WEBHOOK secret is empty or not set."
+            exit 1
+          fi
+          curl -X POST -f "$WEBHOOK_URL"
+          echo "Deployment triggered successfully."

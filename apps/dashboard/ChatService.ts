@@ -423,7 +423,7 @@ const ChatService = {
       user_id: userRow.user_id,
       display_name: buildFullName(userRow) || user.user_name || 'Usuario',
       role_id: userRow.prof_id || 0,
-      role_name: userRow.profiles?.prof_name || null,
+      role_name: (userRow.profiles as any)?.prof_name || (Array.isArray(userRow.profiles) ? userRow.profiles[0]?.prof_name : null) || null,
       presence_status: 'available',
       avatar_url: userRow.user_photo_url || null,
       is_online: true,

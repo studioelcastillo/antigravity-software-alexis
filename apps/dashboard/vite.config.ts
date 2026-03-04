@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
     );
     const env = { ...fileEnv, ...runtimeEnv };
     return {
-      base: env.VITE_DASHBOARD_BASE || (mode === 'production' ? '/dashboard-app/' : '/'),
+      base: env.VITE_DASHBOARD_BASE || '/',
       server: {
         port: 3000,
         host: '0.0.0.0',

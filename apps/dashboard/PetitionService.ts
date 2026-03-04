@@ -1,9 +1,8 @@
 import { supabase } from './supabaseClient';
 import { normalizeQueryString } from './supabase/queryUtils';
-import { getStoredUser } from './session';
 
 export type PetitionStateValue = 'EN PROCESO' | 'PENDIENTE' | 'APROBADA' | 'RECHAZADA';
-export type PetitionTypeValue = 'CREACIÓN DE CUENTA' | 'CREACION DE CUENTA' | 'REPORTE' | 'ACCOUNT_CREATION';
+export type PetitionTypeValue = 'CREACION DE CUENTA' | 'REPORTE' | 'ACCOUNT_CREATION';
 
 export interface PetitionDatatableParams {
   start: number;
@@ -47,75 +46,6 @@ const DEFAULT_COLUMNS = [
   'petitions.updated_at',
 ];
 
-const normalizePetitionState = (value?: string | null): PetitionStateValue | null => {
-  if (!value) return null;
-  const normalized = value.toUpperCase().replace(/\s+/g, ' ').trim();
-  switch (normalized) {
-    case 'EN PROCESO':
-    case 'EN_PROCESO':
-    case 'IN PROCESS':
-    case 'IN_PROGRESS':
-      return 'EN PROCESO';
-    case 'PENDIENTE':
-    case 'PENDING':
-      return 'PENDIENTE';
-    case 'APROBADA':
-    case 'APPROVED':
-      return 'APROBADA';
-    case 'RECHAZADA':
-    case 'REJECTED':
-      return 'RECHAZADA';
-    default:
-      return null;
-  }
-};
-
-const normalizeTimeline = (timeline: any[] = []): any[] => {
-  if (!Array.isArray(timeline) || timeline.length === 0) return [];
-  return timeline
-    .map((item) => ({
-      ...item,
-      user: item?.user || item?.users || null,
-      ptnstate_state: normalizePetitionState(item?.ptnstate_state) || item?.ptnstate_state,
-    }))
-    .sort((a, b) => {
-      const aTime = a?.created_at ? new Date(a.created_at).getTime() : 0;
-      const bTime = b?.created_at ? new Date(b.created_at).getTime() : 0;
-      return aTime - bTime;
-    });
-};
-
-const buildTimelineFromRow = (row: any): any[] => {
-  const state = normalizePetitionState(row?.ptn_state || row?.ptnstate_state);
-  if (!state) return [];
-  return [
-    {
-      ptnstate_state: state,
-      ptnstate_observation: row?.ptn_observation || row?.ptnstate_observation || '',
-      created_at: row?.updated_at || row?.created_at,
-    },
-  ];
-};
-
-const normalizeStateFilters = (states: string[]): string[] => {
-  const normalized = new Set<string>();
-  states.forEach((state) => {
-    const mapped = normalizePetitionState(state) || state;
-    normalized.add(mapped);
-    if (mapped === 'PENDIENTE') normalized.add('PENDING');
-    if (mapped === 'EN PROCESO') {
-      normalized.add('IN PROCESS');
-      normalized.add('IN_PROGRESS');
-    }
-  });
-  return Array.from(normalized);
-};
-
-const getCurrentUserId = () => {
-  const user = getStoredUser();
-  return user?.user_id ?? null;
-};
-
 const PetitionService = {
   async getPetitions(params: PetitionDatatableParams | string) {
     let queryParams: URLSearchParams;
@@ -147,12 +77,9 @@ const PetitionService = {
 
     let query = supabase
       .from('petitions')
-      .select(
-        '*, users!user_id(user_id, user_name, user_name2, user_surname, user_surname2, user_identification, user_model_category), studios_models(stdmod_id, studios(std_name)), petition_state:petition_states(ptnstate_state, ptnstate_observation, created_at, users!petition_states_user_id_fkey(user_name, user_name2, user_surname, user_surname2))',
-        {
-          count: 'exact',
-        }
-      );
+      .select('*, users!user_id(user_name, user_surname), studios_models(stdmod_id, studios(std_name))', {
+        count: 'exact',
+      });
 
     const filter = (queryParams.get('filter') || '').trim();
     const states = (queryParams.get('states') || '').split(',').filter(Boolean);
@@ -164,7 +91,7 @@ const PetitionService = {
     const length = Number(queryParams.get('length') || 0);
 
     if (states.length > 0) {
-      query = query.in('ptn_state', normalizeStateFilters(states));
+      query = query.in('ptn_state', states);
     }
 
     if (userId) {
@@ -199,17 +126,9 @@ const PetitionService = {
     }
 
     const { data, error, count } = await query;
-    const normalizedData = (data || []).map((row: any) => {
-      const timeline = normalizeTimeline(row?.petition_state || row?.petition_states);
-      return {
-        ...row,
-        ptn_state: normalizePetitionState(row?.ptn_state) || row?.ptn_state,
-        petition_state: timeline.length > 0 ? timeline : buildTimelineFromRow(row),
-      };
-    });
     return {
       data: {
-        data: normalizedData,
+        data: data || [],
         recordsTotal: count || 0,
         recordsFiltered: count || 0,
       },
@@ -220,55 +139,26 @@ const PetitionService = {
   async getPetition(id: number | string) {
     const { data, error } = await supabase
       .from('petitions')
-      .select(
-        '*, users!user_id(user_id, user_name, user_name2, user_surname, user_surname2, user_identification, user_model_category), studios_models(stdmod_id, studios(std_name)), petition_state:petition_states(ptnstate_state, ptnstate_observation, created_at, users!petition_states_user_id_fkey(user_name, user_name2, user_surname, user_surname2))'
-      )
+      .select('*, users!user_id(user_name, user_surname), studios_models(stdmod_id, studios(std_name))')
       .eq('ptn_id', id)
       .single();
 
-    const normalizedRow = data
-      ? {
-          ...data,
-          ptn_state: normalizePetitionState(data?.ptn_state) || data?.ptn_state,
-          petition_state:
-            normalizeTimeline(data?.petition_state || data?.petition_states).length > 0
-              ? normalizeTimeline(data?.petition_state || data?.petition_states)
-              : buildTimelineFromRow(data),
-        }
-      : null;
-
-    return { data: { data: normalizedRow ? [normalizedRow] : [] }, error };
+    return { data: { data: data ? [data] : [] }, error };
   },
 
   async addPetition(payload: CreatePetitionPayload) {
-    const { ptnstate_observation, ...rest } = payload;
     const { data, error } = await supabase
       .from('petitions')
       .insert([
         {
-          ...rest,
-          ptn_state: 'EN PROCESO',
-          ptn_observation: ptnstate_observation,
+          ...payload,
           ptn_page: Array.isArray(payload.ptn_page) ? payload.ptn_page.join(',') : payload.ptn_page,
         },
       ])
       .select()
       .single();
 
-    if (error || !data) {
-      return { data: { data, status: 'Error' }, error };
-    }
-
-    const { error: stateError } = await supabase.from('petition_states').insert([
-      {
-        ptn_id: data.ptn_id,
-        user_id: getCurrentUserId(),
-        ptnstate_state: 'EN PROCESO',
-        ptnstate_observation: ptnstate_observation || null,
-      },
-    ]);
-
-    return { data: { data, status: stateError ? 'Error' : 'Success' }, error: stateError || error };
+    return { data: { data, status: error ? 'Error' : 'Success' }, error };
   },
 
   async addPetitionState(payload: CreatePetitionStatePayload) {
@@ -283,26 +173,12 @@ const PetitionService = {
         ptn_password_final: rest.ptn_password_final,
         ptn_payment_pseudonym: rest.ptn_payment_pseudonym,
         ptn_linkacc: rest.ptn_linkacc,
-        updated_at: new Date().toISOString(),
       })
       .eq('ptn_id', ptn_id)
       .select()
       .single();
 
-    if (error) {
-      return { data: { data, status: 'Error' }, error };
-    }
-
-    const { error: stateError } = await supabase.from('petition_states').insert([
-      {
-        ptn_id,
-        user_id: getCurrentUserId(),
-        ptnstate_state,
-        ptnstate_observation: rest.ptnstate_observation || null,
-      },
-    ]);
-
-    return { data: { data, status: stateError ? 'Error' : 'Success' }, error: stateError };
+    return { data: { data, status: error ? 'Error' : 'Success' }, error };
   },
 
   async deletePetition(id: number | string) {
@@ -313,21 +189,11 @@ const PetitionService = {
   async getAccountCreations(userId: number | string) {
     const { data, error } = await supabase
       .from('petitions')
-      .select('ptn_page')
+      .select('*, users!user_id(user_name, user_surname)')
       .eq('user_id', userId)
-      .in('ptn_state', ['EN PROCESO', 'PENDIENTE', 'PENDING', 'IN PROCESS', 'IN_PROGRESS'])
-      .in('ptn_type', ['CREACIÓN DE CUENTA', 'CREACION DE CUENTA', 'ACCOUNT_CREATION']);
+      .eq('ptn_type', 'ACCOUNT_CREATION');
 
-    const pages = (data || []).flatMap((row) =>
-      String(row?.ptn_page || '')
-        .split(',')
-        .map((page) => page.trim())
-        .filter(Boolean)
-    );
-
-    const uniquePages = Array.from(new Set(pages));
-
-    return { data: { data: uniquePages }, error };
+    return { data: { data: data || [] }, error };
   },
 
   async checkModelStudio(userId: number | string) {
@@ -354,20 +220,12 @@ const PetitionService = {
 
   async getPreviousObservations(search: string) {
     const { data, error } = await supabase
-      .from('petition_states')
-      .select('ptnstate_observation')
-      .ilike('ptnstate_observation', `%${search}%`)
+      .from('petitions')
+      .select('ptn_observation')
+      .ilike('ptn_observation', `%${search}%`)
       .limit(10);
 
-    const observations = Array.from(
-      new Set(
-        (data || [])
-          .map((row: any) => row?.ptnstate_observation)
-          .filter((value: string) => Boolean(value))
-      )
-    );
-
-    return { data: { data: observations }, error };
+    return { data: { data: data || [] }, error };
   },
 };
 

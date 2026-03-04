@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { 
-  Camera, Calendar as CalIcon, Plus, Filter, Clock, MapPin, 
-  User, CheckCircle2, XCircle, AlertTriangle, UploadCloud, 
-  Download, Star, BarChart3, Image as ImageIcon, Video, 
+import {
+  Camera, Calendar as CalIcon, Plus, Filter, Clock, MapPin,
+  User, CheckCircle2, XCircle, AlertTriangle, UploadCloud,
+  Download, Star, BarChart3, Image as ImageIcon, Video,
   MoreVertical, RefreshCw, X, Save, Search, ChevronRight,
   ChevronLeft, Users, Settings2, ShieldCheck, Zap, Bell, Check,
   ShieldAlert, Unlock, Lock
 } from 'lucide-react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell 
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import PhotoService from '../PhotoService';
 import { PhotoRequestForm } from './PhotoRequestForm';
@@ -18,7 +18,7 @@ import Avatar from './Avatar';
 
 // Mock User Context (In real app, comes from Auth)
 const CURRENT_USER = {
-    id: 3990, 
+    id: 3990,
     name: 'Jennifer Zuluaga',
     role: 'ADMIN' // Standardized to 'ADMIN'
 };
@@ -56,17 +56,17 @@ const StatusBadge: React.FC<{ status: PhotoRequestStatus }> = ({ status }) => {
 
 // --- NEW ENHANCED CALENDAR ---
 
-const PhotoCalendar: React.FC<{ 
-    events: PhotoCalendarEvent[], 
+const PhotoCalendar: React.FC<{
+    events: PhotoCalendarEvent[],
     onRefresh: () => void,
     selectedDate: string,
     setSelectedDate: (d: string) => void,
     selectedTeamMemberIds: number[],
-    setSelectedTeamMemberIds: (ids: number[]) => void
+    setSelectedTeamMemberIds: React.Dispatch<React.SetStateAction<number[]>>
 }> = ({ events, onRefresh, selectedDate, setSelectedDate, selectedTeamMemberIds, setSelectedTeamMemberIds }) => {
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
     const [availability, setAvailability] = useState<any>(null);
-    
+
     const hours = Array.from({ length: 13 }, (_, i) => i + 8); // 8 AM to 8 PM
 
     useEffect(() => {
@@ -95,7 +95,7 @@ const PhotoCalendar: React.FC<{
             type: 'BLOCK',
             resourceId: selectedTeamMemberIds.length > 0 ? selectedTeamMemberIds[0] : 101
         });
-        
+
         onRefresh();
     };
 
@@ -113,7 +113,7 @@ const PhotoCalendar: React.FC<{
             type: 'BLOCK',
             resourceId: selectedTeamMemberIds.length > 0 ? selectedTeamMemberIds[0] : 101
         });
-        
+
         onRefresh();
     };
 
@@ -143,7 +143,7 @@ const PhotoCalendar: React.FC<{
     };
 
     const toggleTeamMember = (id: number) => {
-        setSelectedTeamMemberIds(prev => 
+        setSelectedTeamMemberIds(prev =>
             prev.includes(id) ? prev.filter(mid => mid !== id) : [...prev, id]
         );
     };
@@ -156,13 +156,13 @@ const PhotoCalendar: React.FC<{
                     <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                         <CalIcon size={14} /> Seleccionar Fecha
                     </h4>
-                    <input 
-                        type="date" 
+                    <input
+                        type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         className="w-full p-4 bg-slate-50 border-none rounded-2xl text-sm font-black outline-none focus:ring-4 focus:ring-amber-500/5 transition-all mb-4"
                     />
-                    <button 
+                    <button
                         onClick={handleBlockDay}
                         className="w-full py-3 bg-rose-50 border border-rose-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-100 transition-all flex items-center justify-center gap-2"
                     >
@@ -178,7 +178,7 @@ const PhotoCalendar: React.FC<{
                         <button className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 transition-all"><Settings2 size={16} /></button>
                     </div>
                     <div className="space-y-2">
-                        <button 
+                        <button
                             onClick={() => setSelectedTeamMemberIds([])}
                             className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all border ${selectedTeamMemberIds.length === 0 ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-50 hover:bg-slate-50'}`}
                         >
@@ -186,8 +186,8 @@ const PhotoCalendar: React.FC<{
                             {selectedTeamMemberIds.length === 0 && <Check size={14} />}
                         </button>
                         {TEAM_MOCK.map(member => (
-                            <div 
-                                key={member.id} 
+                            <div
+                                key={member.id}
                                 onClick={() => toggleTeamMember(member.id)}
                                 className={`flex items-center justify-between p-3 rounded-2xl transition-all cursor-pointer group border ${selectedTeamMemberIds.includes(member.id) ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-transparent hover:bg-slate-50'}`}
                             >
@@ -205,7 +205,7 @@ const PhotoCalendar: React.FC<{
                             </div>
                         ))}
                     </div>
-                    <button 
+                    <button
                         onClick={() => setIsConfigModalOpen(true)}
                         className="w-full mt-6 py-3 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-100 transition-all"
                     >
@@ -248,7 +248,7 @@ const PhotoCalendar: React.FC<{
                                 <span className="text-[10px] font-black text-slate-400 w-12 text-right pt-1 group-hover:text-amber-500 transition-colors">
                                     {hour.toString().padStart(2, '0')}:00
                                 </span>
-                                <div 
+                                <div
                                     onClick={() => handleBlockSlot(hour)}
                                     className="flex-1 h-full relative group-hover:bg-slate-50/50 transition-colors cursor-pointer rounded-lg"
                                 >
@@ -268,12 +268,12 @@ const PhotoCalendar: React.FC<{
                             const startTime = new Date(event.start);
                             const startHour = startTime.getHours() + startTime.getMinutes() / 60;
                             const duration = (new Date(event.end).getTime() - startTime.getTime()) / (1000 * 60 * 60);
-                            
+
                             const top = (startHour - 8) * 80; // 80px per hour
                             const height = Math.max(duration * 80, 40); // Min height for visibility
 
                             return (
-                                <div 
+                                <div
                                     key={event.id}
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -314,13 +314,13 @@ const PhotoCalendar: React.FC<{
                             <h3 className="text-xl font-black text-slate-900 tracking-tight">Configurar Disponibilidad</h3>
                             <button onClick={() => setIsConfigModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={20} /></button>
                         </div>
-                        
+
                         <div className="space-y-6">
                             <div>
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Días Laborales</label>
                                 <div className="flex flex-wrap gap-2">
                                     {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map(day => (
-                                        <button 
+                                        <button
                                             key={day}
                                             onClick={() => {
                                                 const newDays = availability.workingDays.includes(day)
@@ -339,25 +339,25 @@ const PhotoCalendar: React.FC<{
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Hora Inicio</label>
-                                    <input 
-                                        type="time" 
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" 
+                                    <input
+                                        type="time"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none"
                                         value={availability.startTime}
                                         onChange={(e) => setAvailability({...availability, startTime: e.target.value})}
                                     />
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Hora Fin</label>
-                                    <input 
-                                        type="time" 
-                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none" 
+                                    <input
+                                        type="time"
+                                        className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none"
                                         value={availability.endTime}
                                         onChange={(e) => setAvailability({...availability, endTime: e.target.value})}
                                     />
                                 </div>
                             </div>
 
-                            <button 
+                            <button
                                 onClick={async () => {
                                     await PhotoService.updateAvailability(availability);
                                     setIsConfigModalOpen(false);
@@ -393,7 +393,7 @@ const RatingsModal: React.FC<{ isOpen: boolean, onClose: () => void, request: Ph
                 </div>
                 <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">Calificar Servicio</h3>
                 <p className="text-center text-xs text-slate-500 mb-8 font-medium leading-relaxed">Tu opinión nos ayuda a mantener los estándares de calidad del Castillo.</p>
-                
+
                 <div className="flex justify-center gap-3 mb-8">
                     {[1,2,3,4,5].map(s => (
                         <button key={s} onClick={() => setScore(s)} className={`p-2 rounded-2xl transition-all hover:scale-110 active:scale-90 ${score >= s ? 'text-amber-400' : 'text-slate-100'}`}>
@@ -401,9 +401,9 @@ const RatingsModal: React.FC<{ isOpen: boolean, onClose: () => void, request: Ph
                         </button>
                     ))}
                 </div>
-                
+
                 <textarea className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-medium mb-6 resize-none outline-none focus:ring-4 focus:ring-amber-500/5 transition-all" rows={4} placeholder="Cuéntanos más sobre tu experiencia..." value={comment} onChange={e => setComment(e.target.value)} />
-                
+
                 <button onClick={() => onSubmit({ score, comment })} className="w-full py-4 bg-slate-900 text-amber-400 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-black active:scale-95 transition-all">Enviar Calificación</button>
             </div>
         </div>
@@ -499,12 +499,12 @@ const PhotographyPage: React.FC = () => {
     const handleUpload = async (file: File) => {
         if (!selectedRequest) return;
         await PhotoService.uploadAsset(selectedRequest.id, file);
-        
+
         // Simulate Google Drive Sync & Notification creation
         const today = new Date().toISOString().split('T')[0];
         const folderType = file.type.includes('video') ? 'Videos' : 'Fotos';
         const path = `Liv-Stre / El Castillo / 1. El Castillo / ${selectedRequest.requester_name} / Shoot_${today} / ${folderType}`;
-        
+
         const newNotification = {
             id: `notif_${Date.now()}`,
             requestId: selectedRequest.id,
@@ -528,8 +528,8 @@ const PhotographyPage: React.FC = () => {
         await PhotoService.submitRating({
             request_id: selectedRequest.id,
             from_user_id: CURRENT_USER.id,
-            to_user_id: 0, 
-            role_target: 'FOTOGRAFO', 
+            to_user_id: 0,
+            role_target: 'FOTOGRAFO',
             score: ratingData.score,
             aspects: {},
             comment: ratingData.comment
@@ -542,19 +542,19 @@ const PhotographyPage: React.FC = () => {
 
     const renderInbox = () => {
         const filteredRequests = requests.filter(req => {
-            const prStatus = req.status === 'SENT' ? 'ABIERTA' 
+            const prStatus = req.status === 'SENT' ? 'ABIERTA'
                   : ['ACCEPTED', 'CONFIRMED', 'IN_PROGRESS', 'PHOTOS_TAKEN'].includes(req.status) ? 'EN PROCESO'
                   : ['DELIVERED', 'RATED', 'CLOSED'].includes(req.status) ? 'TERMINADA'
                   : req.status === 'RESCHEDULE_PROPOSED' ? 'REPROGRAMADA'
                   : req.status === 'REJECTED' ? 'RECHAZADA'
                   : 'CANCELADA';
-            
+
             const matchesStatus = statusFilter === 'TODOS' || prStatus === statusFilter;
             const category = req.requires_makeup ? 'MAQUILLAJE' : req.type;
-            const matchesType = typeFilter === 'TODOS' || 
+            const matchesType = typeFilter === 'TODOS' ||
                                 (typeFilter === 'FOTO / VIDEO' && (category?.includes('FOTO') || category?.includes('VIDEO'))) ||
                                 (typeFilter === 'MAQUILLAJE' && category === 'MAQUILLAJE');
-            
+
             return matchesStatus && matchesType;
         });
 
@@ -573,7 +573,7 @@ const PhotographyPage: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-3">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">Estado:</span>
                         {['TODOS', 'ABIERTA', 'EN PROCESO', 'REPROGRAMADA', 'TERMINADA', 'RECHAZADA'].map(f => (
-                            <button 
+                            <button
                                 key={f}
                                 onClick={() => setStatusFilter(f)}
                                 className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${statusFilter === f ? 'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20' : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'}`}
@@ -585,7 +585,7 @@ const PhotographyPage: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-3">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2">Categoría:</span>
                         {['TODOS', 'FOTO / VIDEO', 'MAQUILLAJE'].map(f => (
-                            <button 
+                            <button
                                 key={f}
                                 onClick={() => setTypeFilter(f)}
                                 className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${typeFilter === f ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20' : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'}`}
@@ -600,7 +600,7 @@ const PhotographyPage: React.FC = () => {
                     {filteredRequests.map(req => (
                         <div key={req.id} onClick={() => setSelectedRequest(req)} className={`bg-white rounded-[32px] border border-slate-100 p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all cursor-pointer group relative overflow-hidden flex flex-col h-full border-b-4 hover:scale-[1.02] ${getCardColor(req.status)}`}>
                             {req.priority === 'HIGH' && <div className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-bl-xl shadow-sm"></div>}
-                            
+
                             <div className="flex justify-between items-start mb-6">
                                 <div className="flex items-center gap-4">
                                     <Avatar name={req.requester_name} size="md" />
@@ -676,7 +676,7 @@ const PhotographyPage: React.FC = () => {
             <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
                 <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setSelectedRequest(null)} />
                 <div className="relative bg-white w-full max-w-5xl h-full md:h-[85vh] rounded-[40px] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.4)] flex flex-col md:flex-row overflow-hidden animate-in zoom-in-95 duration-300">
-                    
+
                     {/* Left: Info */}
                     <div className="w-full md:w-1/3 bg-slate-50 p-10 border-r border-slate-100 overflow-y-auto custom-scrollbar flex flex-col">
                         <div className="mb-10">
@@ -686,7 +686,7 @@ const PhotographyPage: React.FC = () => {
                             </div>
                             <h2 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">Detalles del Shoot</h2>
                         </div>
-                        
+
                         <div className="space-y-8 flex-1">
                             <div className="bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Modelo / Solicitante</p>
@@ -714,7 +714,7 @@ const PhotographyPage: React.FC = () => {
                                     "{selectedRequest.style_references || 'Sin referencias especificadas'}"
                                 </p>
                             </div>
-                            
+
                             {/* Actions Group */}
                             <div className="pt-4 space-y-3 mt-auto">
                                 {isPhotographer && selectedRequest.status === 'SENT' && (
@@ -852,12 +852,12 @@ const PhotographyPage: React.FC = () => {
                         )}
                     </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Estado de Conexión */}
                     <div className="space-y-6 bg-slate-50 p-6 rounded-[24px] border border-slate-100">
                         <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">Estado de la Cuenta</h4>
-                        
+
                         {driveConnected ? (
                             <div className="space-y-6">
                                 <div>
@@ -869,7 +869,7 @@ const PhotographyPage: React.FC = () => {
                                         El software tiene permisos activos para gestionar archivos. Todo el contenido subido por los fotógrafos se enviará automáticamente a esta cuenta.
                                     </p>
                                 </div>
-                                <button 
+                                <button
                                     onClick={handleDisconnectDrive}
                                     className="w-full py-3 bg-white border border-rose-200 text-rose-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 transition-all"
                                 >
@@ -881,7 +881,7 @@ const PhotographyPage: React.FC = () => {
                                 <p className="text-sm font-medium text-slate-600 leading-relaxed">
                                     Para que la sincronización sea automática y segura, debes otorgar permisos al software iniciando sesión con tu cuenta de Google.
                                 </p>
-                                <button 
+                                <button
                                     onClick={handleConnectDrive}
                                     className="w-full py-4 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-slate-900/20 flex items-center justify-center gap-3"
                                 >
@@ -905,7 +905,7 @@ const PhotographyPage: React.FC = () => {
                         <p className="text-sm font-medium text-slate-500 mb-4">
                             Al subir contenido, el software organizará los archivos en tu Drive exactamente de esta manera:
                         </p>
-                        
+
                         <div className="bg-slate-900 rounded-[24px] p-6 text-slate-300 font-mono text-xs leading-loose shadow-inner overflow-x-auto">
                             <div className="flex items-center gap-2 text-amber-400 font-bold">
                                 <span className="text-slate-500">📁</span> Liv-Stre <span className="text-[9px] text-slate-500 font-sans font-normal">(Software)</span>
@@ -913,7 +913,7 @@ const PhotographyPage: React.FC = () => {
                             <div className="ml-4 flex items-center gap-2 border-l border-slate-700 pl-4 py-1">
                                 <span className="text-slate-500">📁</span> El Castillo <span className="text-[9px] text-slate-500 font-sans font-normal">(Licencia Maestra)</span>
                             </div>
-                            
+
                             {/* Sede Principal */}
                             <div className="ml-8 flex items-center gap-2 border-l border-slate-700 pl-4 py-1">
                                 <span className="text-slate-500">📁</span> 1. El Castillo <span className="text-[9px] text-slate-500 font-sans font-normal">(Sede Principal)</span>
@@ -921,7 +921,7 @@ const PhotographyPage: React.FC = () => {
                             <div className="ml-12 flex items-center gap-2 border-l border-slate-700 pl-4 py-1 text-white font-bold">
                                 <span className="text-slate-500">📁</span> Jennifer Zuluaga <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded ml-2 font-sans">Tercero Creado</span>
                             </div>
-                            
+
                             {/* Shoot 1 */}
                             <div className="ml-16 flex items-center gap-2 border-l border-slate-700 pl-4 py-1">
                                 <span className="text-slate-500">📁</span> Shoot_2026-02-25
@@ -1009,7 +1009,7 @@ const PhotographyPage: React.FC = () => {
                                     </div>
                                 </div>
                                 {notif.status === 'PENDING' ? (
-                                    <button 
+                                    <button
                                         onClick={() => handleAcknowledgeNotification(notif.id)}
                                         className="w-full md:w-auto px-6 py-3 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 shrink-0"
                                     >
@@ -1054,7 +1054,7 @@ const PhotographyPage: React.FC = () => {
                             <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">Días Laborales</h4>
                             <div className="flex flex-wrap gap-2">
                                 {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map(day => (
-                                    <button 
+                                    <button
                                         key={day}
                                         onClick={() => {
                                             const newDays = availability.workingDays.includes(day)
@@ -1075,8 +1075,8 @@ const PhotographyPage: React.FC = () => {
                             <div className="flex items-center gap-4">
                                 <div className="flex-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Hora Inicio</p>
-                                    <input 
-                                        type="time" 
+                                    <input
+                                        type="time"
                                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-4 focus:ring-amber-500/5 transition-all"
                                         value={availability.startTime}
                                         onChange={e => handleUpdateAvailability({ ...availability, startTime: e.target.value })}
@@ -1084,8 +1084,8 @@ const PhotographyPage: React.FC = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Hora Fin</p>
-                                    <input 
-                                        type="time" 
+                                    <input
+                                        type="time"
                                         className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-4 focus:ring-amber-500/5 transition-all"
                                         value={availability.endTime}
                                         onChange={e => handleUpdateAvailability({ ...availability, endTime: e.target.value })}
@@ -1124,8 +1124,8 @@ const PhotographyPage: React.FC = () => {
                         <div className="max-w-xs">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3">Días de Restricción</label>
                             <div className="flex items-center gap-3">
-                                <input 
-                                    type="number" 
+                                <input
+                                    type="number"
                                     className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500/5 transition-all"
                                     value={restrictionConfig.restrictionDays}
                                     onChange={e => handleUpdateRestriction({ restrictionDays: parseInt(e.target.value) || 0 })}
@@ -1138,16 +1138,16 @@ const PhotographyPage: React.FC = () => {
                             <div className="pt-8 border-t border-slate-50">
                                 <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-6">Excepciones Manuales (Desbloqueos)</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {PhotoService.getMockUsers().filter(u => u.user_model_category).map(model => {
-                                        const isUnlocked = restrictionConfig.unlockedUsers.includes(model.user_id);
+                                    {(restrictionConfig.unlockedUsers || []).map((userId: number) => {
+                                        const isUnlocked = true;
                                         return (
-                                            <div key={model.user_id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                            <div key={userId} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
                                                 <div className="flex items-center gap-3">
-                                                    <Avatar name={model.user_name} size="xs" />
-                                                    <span className="text-xs font-bold text-slate-700">{model.user_name}</span>
+                                                    <Avatar name={String(userId)} size="xs" />
+                                                    <span className="text-xs font-bold text-slate-700">Usuario #{userId}</span>
                                                 </div>
-                                                <button 
-                                                    onClick={() => handleToggleUnlock(model.user_id)}
+                                                <button
+                                                    onClick={() => handleToggleUnlock(userId)}
                                                     className={`p-2 rounded-xl transition-all ${isUnlocked ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-white text-slate-300 border border-slate-100 hover:text-rose-500'}`}
                                                     title={isUnlocked ? 'Desbloqueado' : 'Bloqueado por sistema'}
                                                 >
@@ -1204,11 +1204,11 @@ const PhotographyPage: React.FC = () => {
                     <div className="flex-1 min-h-0">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <Pie 
-                                    data={stats?.status_distribution} 
-                                    innerRadius={75} 
-                                    outerRadius={100} 
-                                    paddingAngle={8} 
+                                <Pie
+                                    data={stats?.status_distribution}
+                                    innerRadius={75}
+                                    outerRadius={100}
+                                    paddingAngle={8}
                                     dataKey="value"
                                     stroke="none"
                                 >
@@ -1270,7 +1270,7 @@ const PhotographyPage: React.FC = () => {
 
     return (
         <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-500 relative">
-            
+
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-1">
@@ -1283,7 +1283,7 @@ const PhotographyPage: React.FC = () => {
                     </div>
                 </div>
                 {CURRENT_USER.role === 'MODELO' && (
-                    <button 
+                    <button
                         onClick={() => setIsRequestFormOpen(true)}
                         className="flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 text-amber-400 font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl hover:bg-black transition-all shadow-2xl shadow-slate-900/10 active:scale-95 border-b-4 border-slate-800"
                     >
@@ -1300,7 +1300,7 @@ const PhotographyPage: React.FC = () => {
                         { id: 'CALENDARIO', label: 'Vista de Agenda', icon: CalIcon },
                         { id: 'NOTIFICACIONES', label: 'Notificaciones', icon: Bell, badge: notifications.filter(n => n.status === 'PENDING').length }
                     ].map(tab => (
-                        <button 
+                        <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
                             className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap relative ${activeTab === tab.id ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-900'}`}
@@ -1316,21 +1316,21 @@ const PhotographyPage: React.FC = () => {
                     ))}
                     {['ADMIN', 'ADMINISTRADOR', 'MONITOR', 'FOTOGRAFO'].includes(CURRENT_USER.role) && (
                         <>
-                            <button 
+                            <button
                                 onClick={() => setActiveTab('DASHBOARD')}
                                 className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'DASHBOARD' ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-900'}`}
                             >
                                 <BarChart3 size={16} className={`${activeTab === 'DASHBOARD' ? 'text-amber-500' : 'text-slate-400'}`} />
                                 Análisis
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setActiveTab('CONFIGURACION')}
                                 className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'CONFIGURACION' ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-900'}`}
                             >
                                 <Settings2 size={16} className={`${activeTab === 'CONFIGURACION' ? 'text-amber-500' : 'text-slate-400'}`} />
                                 Config Drive
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setActiveTab('DISPONIBILIDAD')}
                                 className={`flex-1 md:flex-none flex items-center justify-center gap-3 px-6 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'DISPONIBILIDAD' ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-900'}`}
                             >
@@ -1361,9 +1361,9 @@ const PhotographyPage: React.FC = () => {
                     <>
                         {activeTab === 'BANDEJA' && renderInbox()}
                         {activeTab === 'CALENDARIO' && (
-                            <PhotoCalendar 
-                                events={events} 
-                                onRefresh={refreshData} 
+                            <PhotoCalendar
+                                events={events}
+                                onRefresh={refreshData}
                                 selectedDate={selectedDate}
                                 setSelectedDate={setSelectedDate}
                                 selectedTeamMemberIds={selectedTeamMemberIds}

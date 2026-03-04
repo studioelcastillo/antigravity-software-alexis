@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { 
-  CreditCard, ShieldCheck, Users, Calendar, AlertTriangle, 
+import {
+  CreditCard, ShieldCheck, Users, Calendar, AlertTriangle,
   CheckCircle2, Download, History, Zap, ChevronRight,
   TrendingUp, Award, Wallet, Info, Tag, ArrowRight, Check
 } from 'lucide-react';
@@ -16,28 +16,28 @@ const MembershipPage: React.FC = () => {
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [wallet, setWallet] = useState<WalletBalance>({ available: 0, pending: 0, currency: 'USD' });
   const [invoices, setInvoices] = useState<InvoiceRecord[]>([]);
-  
+
   // Calculator State
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('ANNUAL');
   const [activeUsers, setActiveUsers] = useState(1);
   const [couponCode, setCouponCode] = useState('');
   const [referralCode, setReferralCode] = useState('');
   const [useWallet, setUseWallet] = useState(false);
-  
+
   // Derived Data
-  const currentTier = useMemo(() => 
-    SUBSCRIPTION_TIERS.find(t => activeUsers >= t.min && activeUsers <= t.max) || SUBSCRIPTION_TIERS[SUBSCRIPTION_TIERS.length - 1], 
+  const currentTier = useMemo(() =>
+    SUBSCRIPTION_TIERS.find(t => activeUsers >= t.min && activeUsers <= t.max) || SUBSCRIPTION_TIERS[SUBSCRIPTION_TIERS.length - 1],
   [activeUsers]);
-  
-  const nextTier = useMemo(() => 
-    SUBSCRIPTION_TIERS.find(t => t.min === currentTier.max + 1), 
+
+  const nextTier = useMemo(() =>
+    SUBSCRIPTION_TIERS.find(t => t.min === currentTier.max + 1),
   [currentTier]);
 
   // Pricing Logic
   const calculateCosts = () => {
       const baseMonthly = currentTier.monthly_price;
       const annualPrice = currentTier.annual_price;
-      
+
       let cyclePrice = 0;
       let months = 1;
       let discountLabel = '';
@@ -57,12 +57,12 @@ const MembershipPage: React.FC = () => {
       }
 
       switch (billingCycle) {
-          case 'MONTHLY': 
-            cyclePrice = baseMonthly; 
-            months = 1; 
+          case 'MONTHLY':
+            cyclePrice = baseMonthly;
+            months = 1;
             break;
-          case 'ANNUAL': 
-            cyclePrice = annualPrice; 
+          case 'ANNUAL':
+            cyclePrice = annualPrice;
             months = 12;
             discountLabel = 'Ahorro Anual';
             break;
@@ -72,12 +72,12 @@ const MembershipPage: React.FC = () => {
       }
 
       const rawMonthlyEquivalent = cyclePrice / months;
-      
+
       // Savings vs individual licenses ($3 each) based on actual active users
       const individualCostMonthly = activeUsers * 3;
       const individualCostTotal = individualCostMonthly * months;
       const totalSavings = individualCostTotal - cyclePrice;
-      
+
       // Coupons Logic (Simple Mock)
       let couponDiscount = 0;
       if (couponCode === 'PROMO20') couponDiscount = 20; // Fixed $20 off
@@ -102,6 +102,23 @@ const MembershipPage: React.FC = () => {
 
   const costs = calculateCosts();
 
+  useEffect(() => {
+    const loadBilling = async () => {
+      const data = await BillingService.getSubscription();
+      setSubscription(data);
+      setActiveUsers(data.active_users_count || 1);
+      const inv = await BillingService.getInvoices();
+      setInvoices(inv);
+
+      const user = getStoredUser();
+      if (user?.user_id) {
+        const walletData = await WalletService.getWalletData(user.user_id);
+        setWallet(walletData.balance);
+      }
+    };
+    loadBilling();
+  }, []);
+
   const handleApplyCoupon = () => {
       if (couponCode !== 'PROMO20') alert("Cupón inválido (Prueba con PROMO20)");
   };
@@ -112,7 +129,7 @@ const MembershipPage: React.FC = () => {
 
   return (
     <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-500">
-      
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div className="space-y-1">
@@ -122,7 +139,7 @@ const MembershipPage: React.FC = () => {
           </div>
           <p className="text-sm text-slate-500 font-medium pl-14">Administra tu plan, simula costos y gestiona pagos.</p>
         </div>
-        
+
         <div className={`flex items-center gap-3 px-5 py-3 border rounded-2xl ${subscription?.status === 'ACTIVE' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
             {subscription?.status === 'ACTIVE' ? <CheckCircle2 size={20} /> : <AlertTriangle size={20} />}
             <div>
@@ -140,10 +157,10 @@ const MembershipPage: React.FC = () => {
 
       {activeTab === 'PLAN' && (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-              
+
               {/* Left Column: Calculator & Plan Selection */}
               <div className="xl:col-span-2 space-y-8">
-                  
+
                   {/* 0. Tier Selection Dashboard */}
                   <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
                       <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
@@ -160,8 +177,8 @@ const MembershipPage: React.FC = () => {
                                           setBillingCycle('ANNUAL');
                                       }}
                                       className={`relative p-5 rounded-[24px] border-2 text-left transition-all overflow-hidden group ${
-                                          isSelected 
-                                          ? 'border-amber-500 bg-amber-50 ring-4 ring-amber-500/10 shadow-md' 
+                                          isSelected
+                                          ? 'border-amber-500 bg-amber-50 ring-4 ring-amber-500/10 shadow-md'
                                           : 'border-slate-100 bg-slate-50 hover:border-slate-300 hover:shadow-sm'
                                       }`}
                                   >
@@ -173,7 +190,7 @@ const MembershipPage: React.FC = () => {
                                       <h4 className={`text-sm font-black mb-4 pr-6 ${isSelected ? 'text-amber-900' : 'text-slate-700'}`}>
                                           {tier.name}
                                       </h4>
-                                      
+
                                       {tier.id === 't9' ? (
                                           <p className="text-xs text-slate-500 font-medium">Precio a medida. Contáctanos para un descuento especial.</p>
                                       ) : (
@@ -197,7 +214,7 @@ const MembershipPage: React.FC = () => {
                   {/* 1. Calculator Widget */}
                   <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm relative overflow-hidden">
                       <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
-                      
+
                       <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
                           <TrendingUp size={20} className="text-amber-500" /> Calculadora de Plan
                       </h3>
@@ -215,12 +232,12 @@ const MembershipPage: React.FC = () => {
                                   </p>
                               </div>
                           </div>
-                          
-                          <input 
-                            type="range" 
-                            min="1" 
-                            max="350" 
-                            value={activeUsers} 
+
+                          <input
+                            type="range"
+                            min="1"
+                            max="350"
+                            value={activeUsers}
                             onChange={(e) => setActiveUsers(parseInt(e.target.value))}
                             className="w-full h-3 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-slate-900"
                           />
@@ -238,7 +255,7 @@ const MembershipPage: React.FC = () => {
                               </p>
                           </div>
                       )}
-                      
+
                       {costs.isCustom && (
                           <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 flex gap-3 items-start mt-4">
                               <AlertTriangle size={18} className="text-amber-500 mt-0.5" />
@@ -255,7 +272,7 @@ const MembershipPage: React.FC = () => {
                       <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
                           <Calendar size={20} className="text-slate-400" /> Elige tu ciclo de facturación
                       </h3>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {[
                               { id: 'MONTHLY', label: 'Mensual', discount: null, icon: Calendar },
@@ -273,8 +290,8 @@ const MembershipPage: React.FC = () => {
                                     key={cycle.id}
                                     onClick={() => setBillingCycle(cycle.id as BillingCycle)}
                                     className={`relative p-5 rounded-[24px] border-2 transition-all text-left group overflow-hidden ${
-                                        isSelected 
-                                        ? 'border-amber-500 bg-amber-50 ring-4 ring-amber-500/10 shadow-lg' 
+                                        isSelected
+                                        ? 'border-amber-500 bg-amber-50 ring-4 ring-amber-500/10 shadow-lg'
                                         : 'border-slate-100 bg-slate-50 hover:border-slate-300'
                                     }`}
                                 >
@@ -285,7 +302,7 @@ const MembershipPage: React.FC = () => {
                                     <p className={`text-2xl font-black ${isSelected ? 'text-slate-900' : 'text-slate-400'}`}>
                                         ${tempRes.toLocaleString()}
                                     </p>
-                                    
+
                                     {cycle.discount && (
                                         <span className="absolute top-0 right-0 bg-emerald-500 text-white text-[8px] font-black uppercase px-3 py-1 rounded-bl-xl shadow-md">
                                             {cycle.discount}
@@ -295,7 +312,7 @@ const MembershipPage: React.FC = () => {
                               );
                           })}
                       </div>
-                      
+
                       <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
                           <Info size={14} />
                           <span>El plan anual ofrece un descuento significativo sobre la tarifa mensual.</span>
@@ -311,7 +328,7 @@ const MembershipPage: React.FC = () => {
                       <h3 className="text-xl font-black mb-6 flex items-center gap-2">
                           Resumen de Pago <ChevronRight className="text-amber-500" />
                       </h3>
-                      
+
                       {costs.isCustom ? (
                           <div className="text-center py-8">
                               <Users size={48} className="mx-auto text-amber-500 mb-4 opacity-50" />
@@ -329,7 +346,7 @@ const MembershipPage: React.FC = () => {
                               <span className="text-slate-400">Plan Base ({billingCycle})</span>
                               <span className="font-bold">${costs.cyclePrice.toLocaleString()}</span>
                           </div>
-                          
+
                           {costs.totalSavings > 0 && (
                               <div className="flex justify-between items-center text-sm text-emerald-400 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
                                   <div>
@@ -371,9 +388,9 @@ const MembershipPage: React.FC = () => {
                           <div>
                               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Código Promocional</label>
                               <div className="flex gap-2">
-                                  <input 
-                                    type="text" 
-                                    placeholder="Ej: PROMO2025" 
+                                  <input
+                                    type="text"
+                                    placeholder="Ej: PROMO2025"
                                     className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-bold outline-none focus:border-amber-500 transition-colors uppercase"
                                     value={couponCode}
                                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
@@ -456,19 +473,3 @@ const MembershipPage: React.FC = () => {
 };
 
 export default MembershipPage;
-  useEffect(() => {
-    const loadBilling = async () => {
-      const data = await BillingService.getSubscription();
-      setSubscription(data);
-      setActiveUsers(data.active_users_count || 1);
-      const inv = await BillingService.getInvoices();
-      setInvoices(inv);
-
-      const user = getStoredUser();
-      if (user?.user_id) {
-        const walletData = await WalletService.getWalletData(user.user_id);
-        setWallet(walletData.balance);
-      }
-    };
-    loadBilling();
-  }, []);

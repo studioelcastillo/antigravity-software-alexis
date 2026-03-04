@@ -9,30 +9,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Create .env.staging
-        run: |
-          echo "[SUPABASE]" > .env.staging
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.staging
-          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env.staging
-          echo "" >> .env.staging
-          echo "[OPENAI]" >> .env.staging
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env.staging
-          echo "" >> .env.staging
-          echo "[ENVIRONMENT]" >> .env.staging
-          echo "ENVIRONMENT=staging" >> .env.staging
-
-      - name: Build and Deploy
+      - name: Trigger Easypanel Staging Webhook
         env:
-          EASYPANEL_STAGING_WEBHOOK: ${{ secrets.EASYPANEL_STAGING_WEBHOOK }}
-        run: node scripts/deploy.mjs staging
+          WEBHOOK_URL: ${{ secrets.EASYPANEL_STAGING_WEBHOOK }}
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "Error: EASYPANEL_STAGING_WEBHOOK secret is empty or not set."
+            exit 1
+          fi
+          echo "Triggering deployment to Staging..."
+          curl -X POST -f "$WEBHOOK_URL"
+          echo "Deployment triggered successfully."

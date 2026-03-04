@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Zap, Clock, Calendar, AlertCircle, ShieldCheck } from 'lucide-react';
 import PhotoService from '../PhotoService';
+import { MOCK_USERS } from '../constants';
 import { PhotoRestrictionStatus } from '../types';
 
 // Mock User Context (Should match PhotographyPage)
@@ -37,7 +38,11 @@ export const PhotoRequestForm: React.FC<{ onClose: () => void, onSubmit: (data: 
             if (firstModel) {
                 const timer = setTimeout(() => {
                     // Find user ID by name in MOCK_USERS
-                    const user = PhotoService.getMockUsers().find(u => u.user_name.toLowerCase() === firstModel.toLowerCase());
+                    const normalized = firstModel.toLowerCase();
+                    const user = MOCK_USERS.find((u) => {
+                        const fullName = `${u.user_name} ${u.user_surname}`.trim().toLowerCase();
+                        return fullName === normalized || u.user_name.toLowerCase() === normalized;
+                    });
                     if (user) {
                         checkRestriction(user.user_id);
                     } else {

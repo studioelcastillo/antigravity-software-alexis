@@ -325,10 +325,10 @@ const PhotoService = {
     const ratingMakeup = (ratings || []).filter((r: any) => r.role_target === 'MAKEUP');
 
     const rating_photographer_avg = ratingPhotographer.length
-      ? ratingPhotographer.reduce((acc: number, r: any) => acc + toNumber(r.score), 0) / ratingPhotographer.length
+      ? ratingPhotographer.reduce((acc: number, r: any) => acc + Number(r.score), 0) / ratingPhotographer.length
       : 0;
     const rating_makeup_avg = ratingMakeup.length
-      ? ratingMakeup.reduce((acc: number, r: any) => acc + toNumber(r.score), 0) / ratingMakeup.length
+      ? ratingMakeup.reduce((acc: number, r: any) => acc + Number(r.score), 0) / ratingMakeup.length
       : 0;
 
     const status_distribution = (requests || []).reduce((acc: any, r: any) => {

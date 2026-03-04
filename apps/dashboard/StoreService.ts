@@ -135,6 +135,7 @@ const StoreService = {
       id: String(row.cost_center_id),
       code: row.cost_center_code,
       name: row.cost_center_name,
+      active: row.cost_center_active !== false,
     }));
   },
 

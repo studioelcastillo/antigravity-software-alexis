@@ -1,5 +1,21 @@
 import { supabase } from './supabaseClient';
-import { LocationCountry } from './types';
+
+export interface LocationCity {
+  city_id: number | string;
+  city_name: string;
+}
+
+export interface LocationDepartment {
+  dpto_id: string | number;
+  dpto_name: string;
+  cities: LocationCity[];
+}
+
+export interface LocationCountry {
+  country_id: string | number;
+  country_name: string;
+  departments: LocationDepartment[];
+}
 
 const mapLocationHierarchy = (rows: any[]): LocationCountry[] => {
   const countriesMap = new Map<string, LocationCountry>();
@@ -22,7 +38,7 @@ const mapLocationHierarchy = (rows: any[]): LocationCountry[] => {
     const departmentName = row.loc_department || null;
     if (!departmentName) return;
 
-    let department = country.departments.find((dep: any) => dep.dpto_id === departmentName);
+    let department = country.departments.find((dep) => dep.dpto_id === departmentName);
 
     if (!department) {
       department = {

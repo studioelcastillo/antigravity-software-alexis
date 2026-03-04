@@ -1,11 +1,12 @@
 
-import { 
-  Home, Users, FileText, MapPin, DollarSign, CreditCard, 
-  ArrowLeftRight, ShoppingBag, LayoutGrid, Monitor, Video, 
+import {
+  Home, Users, FileText, MapPin, DollarSign, CreditCard,
+  ArrowLeftRight, ShoppingBag, LayoutGrid, Monitor, Video,
   Settings, PieChart, Calendar, Award, Activity, Bell, List, UserPlus,
-  FileBarChart, Briefcase, MessageSquare, ShieldCheck, Megaphone, 
+  FileBarChart, Briefcase, MessageSquare, ShieldCheck, Megaphone,
   FileJson, Zap, BookOpen, Key, ShoppingCart, Archive, Package, Camera, Image,
-  CreditCard as PaymentIcon, Wallet, Cake, Clock, Share2, Banknote
+  CreditCard as PaymentIcon, Wallet, Cake, Clock, Share2, Banknote,
+  History, UploadCloud, Database
 } from 'lucide-react';
 import { SidebarSection, PricingTier, User, Room } from './types';
 
@@ -18,18 +19,19 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
       { id: 'venta_contenido', icon: Share2, label: "Venta de Contenido" },
       { id: 'asistencia', icon: Clock, label: "Asistencia (ZK)" },
       { id: 'cumpleanos', icon: Cake, label: "Cumpleaños" },
-      { id: 'membresia', icon: PaymentIcon, label: "Pagos / Membresía" }, 
-      { id: 'billetera', icon: Wallet, label: "Billetera" }, 
+      { id: 'membresia', icon: PaymentIcon, label: "Pagos / Membresía" },
+      { id: 'billetera', icon: Wallet, label: "Billetera" },
       { id: 'usuarios', icon: Users, label: "Usuarios" },
       { id: 'solicitudes', icon: FileText, label: "Solicitudes" },
+      { id: 'localizaciones', icon: MapPin, label: "Localizaciones" },
     ]
   },
   {
     title: "Operativo",
     items: [
-      { id: 'fotografia', icon: Camera, label: "Fotografía" }, 
+      { id: 'fotografia', icon: Camera, label: "Fotografía" },
       { id: 'control_cuartos', icon: Key, label: "Control de Cuartos" },
-      { id: 'escritorio_remoto', icon: Monitor, label: "Acceso Remoto" }, // NUEVO
+      { id: 'escritorio_remoto', icon: Monitor, label: "Acceso Remoto" },
       { id: 'asignacion_turnos', icon: Calendar, label: "Asignación de Modelos y Turnos" },
       { id: 'tienda', icon: ShoppingCart, label: "Tienda" },
       { id: 'inventario', icon: Archive, label: "Inventario y Compras" },
@@ -39,17 +41,72 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
   {
     title: "Administración",
     items: [
-      { id: 'utilidades', icon: PieChart, label: "Control de Utilidades" }, // NUEVO
+      { id: 'utilidades', icon: PieChart, label: "Control de Utilidades" },
       { id: 'estudios', icon: Monitor, label: "Estudios" },
       { id: 'chat_admin', icon: ShieldCheck, label: "Políticas de Chat" },
       { id: 'config_global', icon: Settings, label: "Configuración Global" },
-      { id: 'control_licencias', icon: Award, label: "Control de Licencias" }
+      { id: 'control_licencias', icon: Award, label: "Control de Licencias" },
+      { id: 'admin_datos', icon: Database, label: "Admin Datos" }
+    ]
+  },
+  {
+    title: "Finanzas",
+    items: [
+      { id: 'accounts', icon: Briefcase, label: "Cuentas Contables" },
+      { id: 'banks_accounts', icon: CreditCard, label: "Cuentas Bancarias" },
+      { id: 'products', icon: ShoppingBag, label: "Productos" },
+      { id: 'transactions', icon: ArrowLeftRight, label: "Transacciones" },
+      { id: 'payments', icon: PaymentIcon, label: "Pagos" },
+      { id: 'payments_files', icon: Archive, label: "Archivos de Pago" },
+      { id: 'periods', icon: Calendar, label: "Periodos" },
+      { id: 'paysheet', icon: FileBarChart, label: "Nomina" },
+      { id: 'categories', icon: List, label: "Categorias" },
+      { id: 'transactions_types', icon: ArrowLeftRight, label: "Tipos de Transferencia" },
+      { id: 'exchanges_rates', icon: ArrowLeftRight, label: "Tasas de Cambio" },
+    ]
+  },
+  {
+    title: "Estudios",
+    items: [
+      { id: 'studios_rooms', icon: Key, label: "Cuartos" },
+      { id: 'studios_shifts', icon: Clock, label: "Turnos" },
+      { id: 'studios_accounts', icon: CreditCard, label: "Cuentas Estudio" },
+      { id: 'studios_models', icon: Users, label: "Contratos" },
+    ]
+  },
+  {
+    title: "Modelos",
+    items: [
+      { id: 'models_accounts', icon: UserPlus, label: "Cuentas Modelos" },
+      { id: 'models_goals', icon: Award, label: "Metas" },
+      { id: 'models_streams', icon: Video, label: "Streams" },
+      { id: 'models_streams_customers', icon: Users, label: "Clientes Stream" },
+      { id: 'models_streams_files', icon: FileText, label: "Archivos Stream" },
+      { id: 'models_transactions', icon: DollarSign, label: "Transacciones" },
+    ]
+  },
+  {
+    title: "Sistema",
+    items: [
+      { id: 'notifications', icon: Bell, label: "Notificaciones" },
+      { id: 'logs', icon: FileText, label: "Logs" },
+      { id: 'login_history', icon: History, label: "Historial Sesiones" },
+      { id: 'api_modules', icon: FileJson, label: "Modulos API" },
+      { id: 'api_permissions', icon: ShieldCheck, label: "Permisos API" },
+      { id: 'api_user_overrides', icon: ShieldCheck, label: "Overrides API" },
+      { id: 'setup_commissions', icon: Settings, label: "Config Comisiones" },
+      { id: 'commissions', icon: DollarSign, label: "Comisiones" },
+      { id: 'monitors', icon: Users, label: "Monitores" },
+      { id: 'massive_liquidation', icon: UploadCloud, label: "Liquidacion Masiva" },
+      { id: 'users2', icon: Users, label: "Usuarios (Legacy)" },
+      { id: 'users_permissions2', icon: ShieldCheck, label: "Permisos Usuarios" },
     ]
   },
   {
     title: "Reportes",
     items: [
       { id: 'liquidacion_modelos', icon: FileBarChart, label: "Liquidación Modelos" },
+      { id: 'studios_liquidation', icon: FileBarChart, label: "Liquidación Estudios" },
     ]
   }
 ];
@@ -57,33 +114,33 @@ export const SIDEBAR_SECTIONS: SidebarSection[] = [
 // --- MOCK DATA ---
 
 export const MOCK_USERS: User[] = [
-    { 
-        user_id: 3990, 
-        user_name: 'Jennifer', 
-        user_surname: 'Zuluaga', 
-        user_email: 'jennifer@example.com', 
-        user_identification: '12345678', 
-        user_active: 1, 
-        user_age: 25, 
+    {
+        user_id: 3990,
+        user_name: 'Jennifer',
+        user_surname: 'Zuluaga',
+        user_email: 'jennifer@example.com',
+        user_identification: '12345678',
+        user_active: 1,
+        user_age: 25,
         image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
         profile: { prof_id: 3, prof_name: 'MODELO' }
     },
-    { 
-        user_id: 3988, 
-        user_name: 'Sofia', 
-        user_surname: 'Mosquera', 
-        user_email: 'sofia@example.com', 
-        user_identification: '87654321', 
-        user_active: 1, 
+    {
+        user_id: 3988,
+        user_name: 'Sofia',
+        user_surname: 'Mosquera',
+        user_email: 'sofia@example.com',
+        user_identification: '87654321',
+        user_active: 1,
         profile: { prof_id: 2, prof_name: 'MONITOR' }
     },
-    { 
-        user_id: 3989, 
-        user_name: 'Ana', 
-        user_surname: 'Acero', 
-        user_email: 'ana@example.com', 
-        user_identification: '11223344', 
-        user_active: 1, 
+    {
+        user_id: 3989,
+        user_name: 'Ana',
+        user_surname: 'Acero',
+        user_email: 'ana@example.com',
+        user_identification: '11223344',
+        user_active: 1,
         profile: { prof_id: 3, prof_name: 'MODELO' }
     },
     {
@@ -97,12 +154,7 @@ export const MOCK_USERS: User[] = [
     }
 ];
 
-export const MOCK_REQUESTS = [
-    { id: '1', consecutive: '001', type: 'FOTO', user: 'Jennifer Zuluaga', status: 'ABIERTO', nick: 'jenniferz', page: 'OnlyFans', createdAt: '2025-05-20', updatedAt: '2025-05-21' },
-    { id: '2', consecutive: '002', type: 'VIDEO', user: 'Ana Acero', status: 'EN PROCESO', nick: 'ana_acero', page: 'Camsoda', createdAt: '2025-05-22', updatedAt: '2025-05-22' },
-    { id: '3', consecutive: '003', type: 'CUENTA', user: 'Sofia Mosquera', status: 'ABIERTO', nick: 'sofia_m', page: 'LoyalFans', createdAt: '2025-05-23', updatedAt: '2025-05-23' },
-    { id: '4', consecutive: '004', type: 'FOTO', user: 'Jennifer Zuluaga', status: 'TERMINADA', nick: 'jenniferz', page: 'OnlyFans', createdAt: '2025-05-15', updatedAt: '2025-05-16' }
-];
+// MOCK_REQUESTS removed - using PetitionService and PhotoService
 
 export const MOCK_LOCATIONS = [
     { id: 'col', name: 'COLOMBIA', states: [

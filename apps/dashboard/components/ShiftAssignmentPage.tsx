@@ -9,7 +9,7 @@ import ShiftService from '../ShiftService';
 const ShiftAssignmentPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'planner' | 'models' | 'dashboard' | 'attendance' | 'settings'>('planner');
   const [plannerSubTab, setPlannerSubTab] = useState<'monitors' | 'models' | 'sundays'>('monitors');
-  
+
   // Date Range State (Synced with Dashboard)
   const [startDate, setStartDate] = useState(() => {
     return localStorage.getItem('dashboard_since') || format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
@@ -38,11 +38,11 @@ const ShiftAssignmentPage: React.FC = () => {
   });
 
   // State for interactive data
-  const [shifts, setShifts] = useState(MOCK_SHIFTS);
+  const [shifts, setShifts] = useState<any[]>([]);
   const [monitors, setMonitors] = useState<any[]>([]);
   const [allActiveMonitors, setAllActiveMonitors] = useState<any[]>([]);
   const [models, setModels] = useState<any[]>([]);
-  const [attendanceRecords, setAttendanceRecords] = useState(MOCK_ATTENDANCE);
+  const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
   const [selectedMonitorId, setSelectedMonitorId] = useState<string | null>(null);
   const [modelSearchQuery, setModelSearchQuery] = useState('');
 
@@ -134,7 +134,7 @@ const ShiftAssignmentPage: React.FC = () => {
 
   const handleBulkUpdateShift = (monitorId: string, shiftId: string | null) => {
     if (!bulkSelection) return;
-    
+
     setMonitors(prev => prev.map(m => {
       if (m.id !== monitorId) return m;
       const newSchedule = { ...m.schedule };
@@ -166,7 +166,7 @@ const ShiftAssignmentPage: React.FC = () => {
     } else {
       setShifts(prev => prev.map(s => s.id === editingShift.id ? editingShift : s));
     }
-    
+
     setEditingShift(null);
     setIsCreatingShift(false);
   };
@@ -176,7 +176,7 @@ const ShiftAssignmentPage: React.FC = () => {
       if (prev?.monitorId !== monitorId) {
         return { monitorId, dates: [dateStr] };
       }
-      
+
       const isSelected = prev.dates.includes(dateStr);
       if (isSelected) {
         const newDates = prev.dates.filter(d => d !== dateStr);
@@ -190,7 +190,7 @@ const ShiftAssignmentPage: React.FC = () => {
 
   const toggleSelectAll = (monitorId: string) => {
     const allDates = days.map(d => format(d, 'yyyy-MM-dd'));
-    
+
     setBulkSelection(prev => {
       if (prev?.monitorId === monitorId && prev.dates.length === allDates.length) {
         return null; // Deselect all if already all selected
@@ -269,7 +269,7 @@ const ShiftAssignmentPage: React.FC = () => {
 
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-        
+
         {/* TAB: PLANIFICADOR */}
         {activeTab === 'planner' && (
           <div className="space-y-6">
@@ -304,23 +304,23 @@ const ShiftAssignmentPage: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-3">
                   {/* Date Range Picker */}
                   <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                    <input 
-                      type="date" 
-                      value={startDate} 
+                    <input
+                      type="date"
+                      value={startDate}
                       onChange={e => setStartDate(e.target.value)}
                       className="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer"
                     />
                     <span className="text-slate-400 font-bold">hasta</span>
-                    <input 
-                      type="date" 
-                      value={endDate} 
+                    <input
+                      type="date"
+                      value={endDate}
                       onChange={e => setEndDate(e.target.value)}
                       className="bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer"
                     />
                   </div>
 
                   {(plannerSubTab === 'monitors' || plannerSubTab === 'sundays') && (
-                    <button 
+                    <button
                       onClick={() => setShowAddMonitorModal(true)}
                       className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 flex items-center gap-2 hover:bg-slate-50 transition-colors"
                     >
@@ -354,17 +354,17 @@ const ShiftAssignmentPage: React.FC = () => {
                                 <div className="text-[10px] text-slate-400 font-medium">Patrón: {shifts.find(s => s.id === monitor.currentShift)?.name || 'Ninguno'}</div>
                               </div>
                               <div className="relative">
-                                <button 
+                                <button
                                   onClick={() => toggleSelectAll(monitor.id)}
                                   className={`px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded-md transition-all ${
                                     bulkSelection?.monitorId === monitor.id && bulkSelection.dates.length === days.length
-                                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-105' 
+                                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-105'
                                       : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200'
                                   }`}
                                 >
                                   {bulkSelection?.monitorId === monitor.id && bulkSelection.dates.length === days.length ? 'Deseleccionar' : 'Seleccionar todo'}
                                 </button>
-                                
+
                                 {bulkSelection?.monitorId === monitor.id && (
                                   <div className="absolute top-0 left-full ml-4 w-64 z-[100] bg-white shadow-2xl rounded-2xl border border-slate-200 p-4 animate-in fade-in slide-in-from-left-2 duration-300">
                                     <div className="text-xs font-black text-slate-900 mb-3 border-b border-slate-100 pb-2 flex justify-between items-center uppercase tracking-widest">
@@ -381,7 +381,7 @@ const ShiftAssignmentPage: React.FC = () => {
                                         if (indexB !== -1) return 1;
                                         return a.name.localeCompare(b.name);
                                       }).map(s => (
-                                        <button 
+                                        <button
                                           key={s.id}
                                           onClick={() => handleBulkUpdateShift(monitor.id, s.id)}
                                           className="w-full text-left px-3 py-2.5 text-xs font-bold text-slate-700 hover:bg-indigo-600 hover:text-white rounded-xl transition-all flex items-center justify-between group"
@@ -394,7 +394,7 @@ const ShiftAssignmentPage: React.FC = () => {
                                         </button>
                                       ))}
                                       <div className="pt-2 mt-2 border-t border-slate-100">
-                                        <button 
+                                        <button
                                           onClick={() => handleBulkUpdateShift(monitor.id, null)}
                                           className="w-full text-left px-3 py-2.5 text-xs font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-all flex items-center gap-2"
                                         >
@@ -415,7 +415,7 @@ const ShiftAssignmentPage: React.FC = () => {
                             const shift = assignedShiftId ? shifts.find(s => s.id === assignedShiftId) : null;
                             const isEditing = editingCell?.monitorId === monitor.id && editingCell?.date === dateStr;
                             const isSelected = bulkSelection?.monitorId === monitor.id && bulkSelection.dates.includes(dateStr);
-                            
+
                             return (
                               <td key={dateStr} className={`p-2 border-r border-slate-100 text-center relative group transition-all duration-300 ${isSelected ? 'bg-indigo-50/80 scale-[0.98]' : ''}`}>
                                 {isEditing ? (
@@ -426,7 +426,7 @@ const ShiftAssignmentPage: React.FC = () => {
                                     </div>
                                     <div className="space-y-1">
                                       {shifts.map(s => (
-                                        <button 
+                                        <button
                                           key={s.id}
                                           onClick={() => handleUpdateShift(monitor.id, dateStr, s.id)}
                                           className="w-full text-left px-2 py-1.5 text-xs font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-md transition-colors"
@@ -434,7 +434,7 @@ const ShiftAssignmentPage: React.FC = () => {
                                           {s.name}
                                         </button>
                                       ))}
-                                      <button 
+                                      <button
                                         onClick={() => handleUpdateShift(monitor.id, dateStr, null)}
                                         className="w-full text-left px-2 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-md transition-colors border-t border-slate-100 mt-1"
                                       >
@@ -443,7 +443,7 @@ const ShiftAssignmentPage: React.FC = () => {
                                     </div>
                                   </div>
                                 ) : (
-                                  <div 
+                                  <div
                                     onClick={() => {
                                       if (bulkSelection?.monitorId === monitor.id) {
                                         toggleBulkDate(monitor.id, dateStr);
@@ -452,10 +452,10 @@ const ShiftAssignmentPage: React.FC = () => {
                                       }
                                     }}
                                     className={`text-xs font-bold py-2 px-1 rounded-lg border cursor-pointer transition-all duration-300 transform ${
-                                      isSelected 
-                                        ? 'bg-indigo-600 text-white border-indigo-700 shadow-md scale-105 z-10' 
-                                        : shift 
-                                          ? 'bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100' 
+                                      isSelected
+                                        ? 'bg-indigo-600 text-white border-indigo-700 shadow-md scale-105 z-10'
+                                        : shift
+                                          ? 'bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100'
                                           : 'bg-slate-50 text-slate-400 border-slate-200 border-dashed hover:bg-slate-100'
                                     }`}
                                   >
@@ -495,7 +495,7 @@ const ShiftAssignmentPage: React.FC = () => {
                         <tr key={model.id} className="hover:bg-slate-50 transition-colors">
                           <td className="p-4 font-bold text-slate-800">{model.name}</td>
                           <td className="p-4">
-                            <select 
+                            <select
                               className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 font-medium"
                               value={model.monitorId || ''}
                               onChange={(e) => {
@@ -531,7 +531,7 @@ const ShiftAssignmentPage: React.FC = () => {
                       <p className="text-sm text-amber-700 mt-1">Define qué monitores trabajan los domingos en el rango seleccionado ({format(parseISO(startDate), 'dd MMM', { locale: es })} - {format(parseISO(endDate), 'dd MMM', { locale: es })}).</p>
                     </div>
                   </div>
-                  
+
                   {sundays.length === 0 ? (
                     <div className="p-8 text-center text-slate-500 font-medium border-2 border-dashed border-slate-200 rounded-xl">
                       No hay domingos en el rango de fechas seleccionado.
@@ -558,10 +558,10 @@ const ShiftAssignmentPage: React.FC = () => {
                               {sundays.map(sun => {
                                 const dateStr = format(sun, 'yyyy-MM-dd');
                                 const assignedShiftId = getShiftForMonitorDay(monitor, dateStr, true);
-                                
+
                                 return (
                                   <td key={dateStr} className="p-3 border-r border-slate-100">
-                                    <select 
+                                    <select
                                       className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 font-bold"
                                       value={assignedShiftId || 'rest'}
                                       onChange={(e) => handleUpdateShift(monitor.id, dateStr, e.target.value === 'rest' ? null : e.target.value)}
@@ -599,12 +599,12 @@ const ShiftAssignmentPage: React.FC = () => {
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-1">
                   {monitors.map(monitor => (
-                    <button 
-                      key={monitor.id} 
+                    <button
+                      key={monitor.id}
                       onClick={() => setSelectedMonitorId(monitor.id)}
                       className={`w-full text-left p-3 rounded-xl transition-all flex justify-between items-center group ${
-                        selectedMonitorId === monitor.id 
-                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 translate-x-1' 
+                        selectedMonitorId === monitor.id
+                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 translate-x-1'
                           : 'hover:bg-slate-50 border border-transparent text-slate-700'
                       }`}
                     >
@@ -673,8 +673,8 @@ const ShiftAssignmentPage: React.FC = () => {
                                 <td className="p-4">
                                   <div className="relative max-w-[120px]">
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">$</span>
-                                    <input 
-                                      type="number" 
+                                    <input
+                                      type="number"
                                       className="w-full pl-6 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none"
                                       value={model.target}
                                       onChange={(e) => {
@@ -685,7 +685,7 @@ const ShiftAssignmentPage: React.FC = () => {
                                   </div>
                                 </td>
                                 <td className="p-4">
-                                  <select 
+                                  <select
                                     className="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2 font-bold"
                                     value={model.secondaryMonitorId || ''}
                                     onChange={(e) => {
@@ -700,7 +700,7 @@ const ShiftAssignmentPage: React.FC = () => {
                                   </select>
                                 </td>
                                 <td className="p-4 text-right">
-                                  <button 
+                                  <button
                                     onClick={() => setModels(models.map(m => m.id === model.id ? {...m, monitorId: null} : m))}
                                     className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
                                     title="Quitar asignación"
@@ -721,9 +721,9 @@ const ShiftAssignmentPage: React.FC = () => {
                         <h3 className="font-black text-slate-800">Modelos Disponibles</h3>
                         <div className="relative">
                           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                          <input 
-                            type="text" 
-                            placeholder="Buscar modelo..." 
+                          <input
+                            type="text"
+                            placeholder="Buscar modelo..."
                             className="pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-500 w-48"
                             value={modelSearchQuery}
                             onChange={(e) => setModelSearchQuery(e.target.value)}
@@ -741,7 +741,7 @@ const ShiftAssignmentPage: React.FC = () => {
                                   </div>
                                   <span className="text-sm font-bold text-slate-700">{model.name}</span>
                                 </div>
-                                <button 
+                                <button
                                   onClick={() => setModels(models.map(m => m.id === model.id ? {...m, monitorId: selectedMonitor.id} : m))}
                                   className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-all"
                                   title="Asignar a este monitor"
@@ -809,11 +809,11 @@ const ShiftAssignmentPage: React.FC = () => {
                 </h3>
                 <div className="h-72 w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={MOCK_CHART_DATA} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                    <LineChart data={[]} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 600 }} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 600 }} />
-                      <RechartsTooltip 
+                      <RechartsTooltip
                         contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)', fontWeight: 'bold' }}
                         formatter={(value: number) => [`$${value}`, '']}
                       />
@@ -833,7 +833,7 @@ const ShiftAssignmentPage: React.FC = () => {
                     const current = assignedModels.reduce((acc, m) => acc + m.currentSales, 0);
                     const target = assignedModels.reduce((acc, m) => acc + (Number(m.target) || 0), 0);
                     const percent = Math.min(100, Math.round((current / target) * 100)) || 0;
-                    
+
                     return (
                       <div key={monitor.id}>
                         <div className="flex justify-between items-end mb-2">
@@ -848,7 +848,7 @@ const ShiftAssignmentPage: React.FC = () => {
                           </div>
                         </div>
                         <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
-                          <div 
+                          <div
                             className={`h-full rounded-full ${percent >= 100 ? 'bg-emerald-500' : percent >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}
                             style={{ width: `${percent}%` }}
                           ></div>
@@ -936,18 +936,18 @@ const ShiftAssignmentPage: React.FC = () => {
                           <td className="p-4 text-right">
                             <div className="flex items-center justify-end gap-2">
                               {record.minutesToPay > 0 && !record.paid && (
-                                <button 
+                                <button
                                   onClick={() => handleAttendanceAction(record.id, 'pay')}
-                                  className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" 
+                                  className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                                   title="Marcar tiempo pagado"
                                 >
                                   <CheckCircle2 size={18} />
                                 </button>
                               )}
                               {record.penaltyApplied && (
-                                <button 
+                                <button
                                   onClick={() => handleAttendanceAction(record.id, 'waive')}
-                                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" 
+                                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                                   title="Quitar penalización"
                                 >
                                   <XCircle size={18} />
@@ -986,7 +986,7 @@ const ShiftAssignmentPage: React.FC = () => {
                       <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${shift.active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
                         {shift.active ? 'Activo' : 'Inactivo'}
                       </span>
-                      <button 
+                      <button
                         onClick={() => {
                           setEditingShift(shift);
                           setIsCreatingShift(false);
@@ -998,7 +998,7 @@ const ShiftAssignmentPage: React.FC = () => {
                     </div>
                   </div>
                 ))}
-                <button 
+                <button
                   onClick={() => {
                     setEditingShift({ name: '', startTime: '00:00', endTime: '00:00', active: true });
                     setIsCreatingShift(true);
@@ -1018,61 +1018,61 @@ const ShiftAssignmentPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Minutos Diarios Requeridos</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       value={settings.dailyMinutes}
                       onChange={(e) => setSettings({...settings, dailyMinutes: parseInt(e.target.value)})}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tolerancia Tardanza (min)</label>
-                    <input 
-                      type="number" 
+                    <input
+                      type="number"
                       value={settings.tolerance}
                       onChange={(e) => setSettings({...settings, tolerance: parseInt(e.target.value)})}
-                      className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
+                      className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Penalización Fija (No paga tardanza)</label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         value={settings.penaltyAmount}
                         onChange={(e) => setSettings({...settings, penaltyAmount: parseInt(e.target.value)})}
-                        className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
+                        className="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
                       />
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="pt-4 border-t border-slate-100 space-y-3">
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={settings.doubleLate}
                       onChange={(e) => setSettings({...settings, doubleLate: e.target.checked})}
-                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" 
+                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                     />
                     <span className="text-sm font-bold text-slate-700">Minutos tarde se pagan doble</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={settings.doubleMissing}
                       onChange={(e) => setSettings({...settings, doubleMissing: e.target.checked})}
-                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" 
+                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                     />
                     <span className="text-sm font-bold text-slate-700">Minutos faltantes se pagan doble</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={settings.notAccumulative}
                       onChange={(e) => setSettings({...settings, notAccumulative: e.target.checked})}
-                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" 
+                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                     />
                     <div>
                       <span className="text-sm font-bold text-slate-700 block">No acumulable</span>
@@ -1106,41 +1106,41 @@ const ShiftAssignmentPage: React.FC = () => {
             <form onSubmit={handleSaveShift} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nombre del Turno</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
                   value={editingShift.name}
                   onChange={(e) => setEditingShift({...editingShift, name: e.target.value})}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
                   placeholder="Ej: Mañana, Tarde, etc."
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Hora Inicio</label>
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     required
                     value={editingShift.startTime}
                     onChange={(e) => setEditingShift({...editingShift, startTime: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Hora Fin</label>
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     required
                     value={editingShift.endTime}
                     onChange={(e) => setEditingShift({...editingShift, endTime: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" 
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none"
                   />
                 </div>
               </div>
               <div className="flex items-center gap-3 pt-2">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={editingShift.active}
                     onChange={(e) => setEditingShift({...editingShift, active: e.target.checked})}
                     className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
@@ -1149,14 +1149,14 @@ const ShiftAssignmentPage: React.FC = () => {
                 </label>
               </div>
               <div className="pt-4 flex gap-3">
-                <button 
+                <button
                   type="button"
                   onClick={() => setEditingShift(null)}
                   className="flex-1 px-4 py-2 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-sm"
                 >

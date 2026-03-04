@@ -1,3 +1,5 @@
+import { decryptSession } from "./utils/session";
+
 const normalizeUser = (user: any) => {
   if (!user || typeof user !== 'object') return user;
 
@@ -11,14 +13,22 @@ const normalizeUser = (user: any) => {
   };
 };
 
-export const getStoredUser = () => {
-  const raw = localStorage.getItem('dashboard_user') ?? localStorage.getItem('user');
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw);
-    return normalizeUser(parsed);
-  } catch (error) {
-    return null;
+const readSession = (key: string) => {
+  const value = decryptSession(key);
+  if (!value) return null;
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      return null;
+    }
   }
+  return value;
+};
+
+export const getStoredUser = () => {
+  const dashboardUser = readSession("dashboard_user");
+  const user = dashboardUser ?? readSession("user");
+  if (!user) return null;
+  return normalizeUser(user);
 };
