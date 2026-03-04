@@ -18,6 +18,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create .env.production
+        run: |
+          echo "[SUPABASE]" > .env.production
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.production
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env.production
+          echo "" >> .env.production
+          echo "[OPENAI]" >> .env.production
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env.production
+          echo "" >> .env.production
+          echo "[ENVIRONMENT]" >> .env.production
+          echo "ENVIRONMENT=production" >> .env.production
+
       - name: Build and Deploy
         env:
           EASYPANEL_PRODUCTION_WEBHOOK: ${{ secrets.EASYPANEL_PRODUCTION_WEBHOOK }}

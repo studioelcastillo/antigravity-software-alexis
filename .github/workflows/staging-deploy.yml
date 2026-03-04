@@ -20,6 +20,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create .env.staging
+        run: |
+          echo "[SUPABASE]" > .env.staging
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.staging
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env.staging
+          echo "" >> .env.staging
+          echo "[OPENAI]" >> .env.staging
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env.staging
+          echo "" >> .env.staging
+          echo "[ENVIRONMENT]" >> .env.staging
+          echo "ENVIRONMENT=staging" >> .env.staging
+
       - name: Build and Deploy
         env:
           EASYPANEL_STAGING_WEBHOOK: ${{ secrets.EASYPANEL_STAGING_WEBHOOK }}
