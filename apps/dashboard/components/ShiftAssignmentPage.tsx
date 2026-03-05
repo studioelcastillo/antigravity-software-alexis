@@ -874,7 +874,7 @@ const ShiftAssignmentPage: React.FC = () => {
               <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                 <h3 className="font-black text-slate-800">Control Diario de Asistencia</h3>
                 <div className="flex gap-2">
-                  <input type="date" className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-700" defaultValue="2026-02-25" />
+                  <input type="date" className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-700" defaultValue={format(new Date(), 'yyyy-MM-dd')} />
                   <button className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 flex items-center gap-2 hover:bg-slate-50">
                     <Filter size={16} /> Filtros
                   </button>

@@ -21,6 +21,8 @@ const MembershipPage: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('ANNUAL');
   const [activeUsers, setActiveUsers] = useState(1);
   const [couponCode, setCouponCode] = useState('');
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
   const [referralCode, setReferralCode] = useState('');
   const [useWallet, setUseWallet] = useState(false);
 
@@ -78,11 +80,7 @@ const MembershipPage: React.FC = () => {
       const individualCostTotal = individualCostMonthly * months;
       const totalSavings = individualCostTotal - cyclePrice;
 
-      // Coupons Logic (Simple Mock)
-      let couponDiscount = 0;
-      if (couponCode === 'PROMO20') couponDiscount = 20; // Fixed $20 off
-
-      // Wallet Logic
+      // Coupon Logic (to be validated against backend)
       const subtotal = Math.max(0, cyclePrice - couponDiscount);
       const walletApplied = useWallet ? Math.min(wallet.available, subtotal) : 0;
       const finalDue = subtotal - walletApplied;
@@ -120,7 +118,13 @@ const MembershipPage: React.FC = () => {
   }, []);
 
   const handleApplyCoupon = () => {
-      if (couponCode !== 'PROMO20') alert("Cupón inválido (Prueba con PROMO20)");
+    // TODO: validate coupon against backend API
+    if (!couponCode.trim()) {
+      setCouponError('Ingresa un código promocional.');
+      return;
+    }
+    setCouponError('Código no válido o expirado. Contáctanos para más información.');
+    setCouponDiscount(0);
   };
 
   const handleApplyReferral = () => {
@@ -390,13 +394,14 @@ const MembershipPage: React.FC = () => {
                               <div className="flex gap-2">
                                   <input
                                     type="text"
-                                    placeholder="Ej: PROMO2025"
+                                    placeholder="Código promocional"
                                     className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-bold outline-none focus:border-amber-500 transition-colors uppercase"
                                     value={couponCode}
-                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                    onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(null); }}
                                   />
                                   <button onClick={handleApplyCoupon} className="p-2 bg-slate-800 text-slate-400 hover:text-white rounded-xl border border-slate-700 hover:border-slate-500 transition-all"><Tag size={16} /></button>
-                              </div>
+                               </div>
+                               {couponError && <p className="text-xs text-red-400 mt-1 font-medium">{couponError}</p>}
                           </div>
 
                           {wallet.available > 0 && (

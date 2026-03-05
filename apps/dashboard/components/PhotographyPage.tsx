@@ -25,6 +25,7 @@ const getSessionUser = () => {
         id: u?.user_id ?? u?.id ?? 0,
         name: `${u?.user_name ?? ''} ${u?.user_surname ?? ''}`.trim() || 'Usuario',
         role: u?.profile?.prof_name ?? u?.prof_name ?? 'ADMIN',
+        stdId: u?.std_id ?? null,
     };
 };
 
@@ -447,8 +448,9 @@ const PhotographyPage: React.FC = () => {
     const refreshData = async () => {
         setLoading(true);
         try {
+            const studioId = currentUser.stdId ? String(currentUser.stdId) : '';
             const [reqs, evs, kpis, avail, restr, usersRes] = await Promise.all([
-                PhotoService.getRequests({ studioId: '1', role: currentUser.role, userId: currentUser.id }),
+                PhotoService.getRequests({ studioId, role: currentUser.role, userId: currentUser.id }),
                 PhotoService.getCalendarEvents(),
                 PhotoService.getDashboardStats(),
                 PhotoService.getAvailability(),

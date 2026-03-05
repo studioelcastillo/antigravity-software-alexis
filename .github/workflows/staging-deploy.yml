@@ -17,12 +17,16 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies (dashboard)
-        working-directory: apps/dashboard
+      - name: Install dependencies
         run: npm install
 
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
       - name: Security audit
-        working-directory: apps/dashboard
         run: npm audit --audit-level=critical
         continue-on-error: false
 
