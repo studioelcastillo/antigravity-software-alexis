@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import StoreService from '../StoreService';
 import { StoreProduct, StoreCategory, StoreOrder, InventoryLot, PurchaseOrder, InstallmentPlan, Requisition, CostCenter, User as UserType } from '../types';
-// import { MOCK_USERS } from '../constants'; // Removed
 
 const StorePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'CATALOG' | 'CART' | 'ORDERS' | 'INVENTORY' | 'FINANCE'>('CATALOG');

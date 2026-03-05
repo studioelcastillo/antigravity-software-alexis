@@ -30,12 +30,12 @@ type PhotoRequestRow = BaseRequestRow & {
   original: PhotoRequest;
 };
 
-type MockRequestRow = BaseRequestRow & {
+type GeneralRequestRow = BaseRequestRow & {
   isPhotoRequest: false;
   original: any;
 };
 
-type RequestRow = PhotoRequestRow | MockRequestRow;
+type RequestRow = PhotoRequestRow | GeneralRequestRow;
 
 const CURRENT_USER = {
     id: 3990,
