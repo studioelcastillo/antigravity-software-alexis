@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --config apps/dashboard/vite.config.ts --root apps/dashboard",
-    "build": "vite build --config apps/dashboard/vite.config.ts --root apps/dashboard",
-    "preview": "vite preview --config apps/dashboard/vite.config.ts --root apps/dashboard",
+    "dev": "vite --config apps/dashboard/vite.config.ts apps/dashboard",
+    "build": "vite build --config apps/dashboard/vite.config.ts apps/dashboard",
+    "preview": "vite preview --config apps/dashboard/vite.config.ts apps/dashboard",
     "lint": "tsc --noEmit --project apps/dashboard/tsconfig.json"
   },
   "dependencies": {
