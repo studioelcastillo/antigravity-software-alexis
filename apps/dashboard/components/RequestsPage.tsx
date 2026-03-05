@@ -8,6 +8,7 @@ import PhotoService from '../PhotoService';
 import PetitionService from '../PetitionService';
 import { PhotoRequestForm } from './PhotoRequestForm';
 import { PhotoRequest } from '../types';
+import { getStoredUser } from '../session';
 
 interface RequestsPageProps {
   onNavigate?: (id: string) => void;
@@ -37,13 +38,18 @@ type GeneralRequestRow = BaseRequestRow & {
 
 type RequestRow = PhotoRequestRow | GeneralRequestRow;
 
-const CURRENT_USER = {
-    id: 3990,
-    name: 'Jennifer Zuluaga',
-    role: 'ADMIN' // or 'MODELO', 'FOTOGRAFO'
+const getSessionUser = () => {
+  const u = getStoredUser();
+  return {
+    id: u?.user_id ?? u?.id ?? null,
+    name: `${u?.user_name ?? ''} ${u?.user_surname ?? ''}`.trim() || 'Usuario',
+    role: u?.profile?.prof_name ?? u?.prof_name ?? 'USER',
+    stdId: u?.std_id ?? null,
+  };
 };
 
 const RequestsPage: React.FC<RequestsPageProps> = ({ onNavigate }) => {
+  const currentUser = getSessionUser();
   const [activeTab, setActiveTab] = useState('TODOS');
   const [typeFilter, setTypeFilter] = useState('TODOS');
   const [showNewMenu, setShowNewMenu] = useState(false);
@@ -55,7 +61,12 @@ const RequestsPage: React.FC<RequestsPageProps> = ({ onNavigate }) => {
 
   const fetchPhotoRequests = async () => {
     try {
-        const reqs = await PhotoService.getRequests({ studioId: '1' });
+        const studioId = currentUser.stdId ? String(currentUser.stdId) : '';
+        const reqs = await PhotoService.getRequests({
+          studioId,
+          role: currentUser.role,
+          userId: currentUser.id ?? undefined,
+        });
         setPhotoRequests(reqs);
     } catch (e) {
         console.error("Error fetching photo requests:", e);
@@ -84,10 +95,15 @@ const RequestsPage: React.FC<RequestsPageProps> = ({ onNavigate }) => {
   }, []);
 
   const handleCreatePhotoRequest = async (data: any) => {
+      if (!currentUser.id) {
+        alert('Sesion no valida. Recarga e intenta de nuevo.');
+        return;
+      }
       await PhotoService.createRequest({
           ...data,
-          requester_id: CURRENT_USER.id,
-          requester_name: CURRENT_USER.name
+          requester_id: currentUser.id,
+          requester_name: currentUser.name,
+          studio_id: currentUser.stdId ? String(currentUser.stdId) : undefined,
       });
       setIsPhotoFormOpen(false);
       fetchPhotoRequests();
@@ -97,7 +113,7 @@ const RequestsPage: React.FC<RequestsPageProps> = ({ onNavigate }) => {
   const [petitions, setPetitions] = useState<any[]>([]);
 
   const handleUpdatePhotoRequestStatus = async (id: string, status: any, notes?: string) => {
-      await PhotoService.updateStatus(id, status, CURRENT_USER.name, notes, rescheduleData);
+      await PhotoService.updateStatus(id, status, currentUser.name, notes, rescheduleData);
       setSelectedPhotoRequest(null);
       fetchPhotoRequests();
       if (status === 'REJECTED' || status === 'RESCHEDULE_PROPOSED') {
@@ -407,7 +423,7 @@ const RequestsPage: React.FC<RequestsPageProps> = ({ onNavigate }) => {
                           <p className="font-bold text-slate-900">{selectedPhotoRequest.proposed_date} a las {selectedPhotoRequest.proposed_time}</p>
                       </div>
 
-                      {selectedPhotoRequest.status === 'SENT' && CURRENT_USER.role === 'ADMIN' && (
+                      {selectedPhotoRequest.status === 'SENT' && currentUser.role === 'ADMIN' && (
                           <div className="space-y-4 pt-4 border-t border-slate-100">
                               <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest">Acciones de Aprobación</h4>
 
@@ -444,7 +460,7 @@ const RequestsPage: React.FC<RequestsPageProps> = ({ onNavigate }) => {
                           </div>
                       )}
 
-                      {selectedPhotoRequest.status === 'RESCHEDULE_PROPOSED' && CURRENT_USER.role === 'ADMIN' && (
+                      {selectedPhotoRequest.status === 'RESCHEDULE_PROPOSED' && currentUser.role === 'ADMIN' && (
                           <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100">
                               <p className="text-xs font-bold text-amber-800">Esperando que la modelo apruebe la reprogramación para el {selectedPhotoRequest.proposed_date} a las {selectedPhotoRequest.proposed_time}.</p>
                           </div>

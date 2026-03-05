@@ -14,10 +14,6 @@ interface PolicyModalProps {
 const PolicyModal: React.FC<PolicyModalProps> = ({ open, onClose, onAccept, onReject, policy }) => {
   if (!open) return null;
 
-  const formatDescription = (text: string) => {
-    return text.replace(/(?:\r\n|\r|\n)/g, '<br>');
-  };
-
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -51,10 +47,9 @@ const PolicyModal: React.FC<PolicyModalProps> = ({ open, onClose, onAccept, onRe
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
           {policy ? (
-            <div 
-              className="text-slate-600 text-sm leading-relaxed space-y-4 font-medium"
-              dangerouslySetInnerHTML={{ __html: formatDescription(policy.pol_description) }}
-            />
+            <div className="text-slate-600 text-sm leading-relaxed space-y-4 font-medium whitespace-pre-line">
+              {policy.pol_description}
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-slate-400">
                <div className="w-12 h-12 border-4 border-slate-100 border-t-amber-500 rounded-full animate-spin mb-4" />

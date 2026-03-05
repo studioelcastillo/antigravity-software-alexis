@@ -44,7 +44,8 @@ const ContentSalesService = {
   },
 
   async getAssets(status?: ContentAssetStatus): Promise<ContentAsset[]> {
-    let query = supabase.from('content_assets').select('*');
+    const stdId = getStudioId();
+    let query = supabase.from('content_assets').select('*').eq('std_id', stdId);
     if (status) {
       query = query.eq('status', status);
     }

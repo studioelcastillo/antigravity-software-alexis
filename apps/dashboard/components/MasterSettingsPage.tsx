@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Settings, Save, Shield, CreditCard, Building2, 
-  Phone, Globe, Clock, FileText, CheckCircle2, 
-  History, AlertCircle, RefreshCw 
+import {
+  Settings, Save, Shield, CreditCard, Building2,
+  Phone, Globe, Clock, FileText, CheckCircle2,
+  History, AlertCircle, RefreshCw
 } from 'lucide-react';
 import MasterSettingsService from '../MasterSettingsService';
 import { GlobalSettings, AuditLog } from '../types';
@@ -46,12 +46,11 @@ const MasterSettingsPage: React.FC = () => {
     setSaving(true);
     setMessage(null);
     try {
-      // Mock user from localStorage or context
       const userName = getStoredUser()?.user_name || 'Admin';
 
       const updated = await MasterSettingsService.updateSettings(settings, userName);
       setSettings(updated);
-      
+
       // Refresh logs
       const newLogs = await MasterSettingsService.getAuditLogs();
       setLogs(newLogs);
@@ -90,7 +89,7 @@ const MasterSettingsPage: React.FC = () => {
 
   return (
     <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-500">
-      
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
@@ -100,7 +99,7 @@ const MasterSettingsPage: React.FC = () => {
           </h1>
           <p className="text-sm text-slate-500 mt-2 font-medium">Administración maestra de parámetros del sistema.</p>
         </div>
-        
+
         {/* Save Actions */}
         <div className="flex items-center gap-4">
            {settings.last_updated && (
@@ -109,7 +108,7 @@ const MasterSettingsPage: React.FC = () => {
                 <p className="text-xs font-bold text-slate-700">{new Date(settings.last_updated).toLocaleString()} por {settings.updated_by}</p>
              </div>
            )}
-           <button 
+           <button
              onClick={handleSave}
              disabled={saving}
              className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-black rounded-2xl shadow-xl shadow-slate-900/20 active:scale-95 transition-all text-xs uppercase tracking-widest hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
@@ -140,8 +139,8 @@ const MasterSettingsPage: React.FC = () => {
              key={tab.id}
              onClick={() => setActiveTab(tab.id as any)}
              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-               activeTab === tab.id 
-               ? 'bg-slate-900 text-amber-400 shadow-md' 
+               activeTab === tab.id
+               ? 'bg-slate-900 text-amber-400 shadow-md'
                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
              }`}
            >
@@ -153,7 +152,7 @@ const MasterSettingsPage: React.FC = () => {
 
       {/* Content Area */}
       <div className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/40 p-8 min-h-[500px]">
-        
+
         {/* PAYMENT SETTINGS */}
         {activeTab === 'PAYMENT' && (
           <div className="max-w-4xl space-y-8 animate-in fade-in">

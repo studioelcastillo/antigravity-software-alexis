@@ -13,8 +13,11 @@ import ContentSalesService from '../ContentSalesService';
 import { ContentTask, ContentPlatform, ContentAsset, ContentTaskStatus } from '../types';
 import Avatar from './Avatar';
 import UserService from '../UserService';
+import { getStoredUser } from '../session';
 
 const ContentSalesPage: React.FC = () => {
+  const sessionUser = getStoredUser();
+  const studioId = sessionUser?.std_id ? String(sessionUser.std_id) : '';
   const [activeTab, setActiveTab] = useState<'PRIORITY' | 'CALENDAR' | 'INBOX' | 'CONFIG'>('PRIORITY');
   const [tasks, setTasks] = useState<ContentTask[]>([]);
   const [platforms, setPlatforms] = useState<ContentPlatform[]>([]);
@@ -32,7 +35,7 @@ const ContentSalesPage: React.FC = () => {
     setLoading(true);
     try {
         const [t, p, a] = await Promise.all([
-            ContentSalesService.getEligibleModels('1'),
+            ContentSalesService.getEligibleModels(studioId),
             ContentSalesService.getPlatforms(),
             ContentSalesService.getAssets('PENDING_REVIEW')
         ]);
@@ -189,6 +192,31 @@ const ContentSalesPage: React.FC = () => {
 const ContentTaskModal: React.FC<{ onClose: () => void, onSubmit: () => void, platforms: ContentPlatform[] }> = ({ onClose, onSubmit, platforms }) => {
     const [selectedModelId, setSelectedModelId] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [models, setModels] = useState<any[]>([]);
+    const [modelsLoading, setModelsLoading] = useState(true);
+    const [modelsError, setModelsError] = useState('');
+
+    useEffect(() => {
+        let isActive = true;
+        const loadModels = async () => {
+            setModelsLoading(true);
+            setModelsError('');
+            try {
+                const response = await UserService.getUsersDatatable({ start: 0, length: 100, profiles: '3' });
+                if (!isActive) return;
+                setModels(response.data?.data || []);
+            } catch (error) {
+                if (!isActive) return;
+                setModelsError('No se pudo cargar la lista de modelos.');
+            } finally {
+                if (isActive) setModelsLoading(false);
+            }
+        };
+        loadModels();
+        return () => {
+            isActive = false;
+        };
+    }, []);
 
     const handleSubmit = async () => {
         if (!selectedModelId) {
@@ -196,8 +224,6 @@ const ContentTaskModal: React.FC<{ onClose: () => void, onSubmit: () => void, pl
             return;
         }
         setIsSubmitting(true);
-        const response = await UserService.getUsersDatatable({ start: 0, length: 100, profiles: '3' }); // 3 = MODELO
-        const models = response.data?.data || [];
         const model = models.find((u: any) => u.user_id.toString() === selectedModelId);
 
         await ContentSalesService.createTask({
@@ -223,13 +249,23 @@ const ContentTaskModal: React.FC<{ onClose: () => void, onSubmit: () => void, pl
                         <select
                             value={selectedModelId}
                             onChange={(e) => setSelectedModelId(e.target.value)}
+                            disabled={modelsLoading}
                             className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none focus:border-amber-500"
                         >
-                            <option value="">-- Elegir Modelo --</option>
-                            <option value="3990">Jennifer Zuluaga</option>
-                            <option value="3988">Sofia Mosquera</option>
-                            <option value="3989">Ana Acero</option>
+                            <option value="">
+                                {modelsLoading ? 'Cargando modelos...' : '-- Elegir Modelo --'}
+                            </option>
+                            {models.map((model: any) => (
+                                <option key={model.user_id} value={model.user_id}>
+                                    {`${model.user_name} ${model.user_surname || ''}`.trim()}
+                                </option>
+                            ))}
                         </select>
+                        {modelsError && (
+                            <p className="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-widest">
+                                {modelsError}
+                            </p>
+                        )}
                     </div>
                     <button
                         onClick={handleSubmit}

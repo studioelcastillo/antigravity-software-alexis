@@ -7,18 +7,11 @@ type LoginParams = {
   policyAnswer?: boolean;
 };
 
-const getDefaultPassword = (identification?: string | number) => {
-  const digits = String(identification || "").replace(/\D/g, "");
-  if (!digits) return "";
-  return digits.slice(-5);
-};
-
 const AuthSupabaseService = {
   async login({ email, password }: LoginParams) {
     let targetEmail = email;
     let userRecord: {
       user_email?: string;
-      user_password?: string | null;
       user_identification?: string | number | null;
       auth_user_id?: string | null;
     } | null = null;
@@ -26,7 +19,7 @@ const AuthSupabaseService = {
     if (!email.includes("@")) {
       const { data: userData, error: userError } = await supabase
         .from("users")
-        .select("user_email, user_password, user_identification, auth_user_id")
+        .select("user_email, user_identification, auth_user_id")
         .eq("user_identification", email)
         .single();
 
@@ -38,7 +31,7 @@ const AuthSupabaseService = {
     } else {
       const { data: userData } = await supabase
         .from("users")
-        .select("user_email, user_password, user_identification, auth_user_id")
+        .select("user_email, user_identification, auth_user_id")
         .eq("user_email", email)
         .single();
       userRecord = userData || null;
@@ -50,83 +43,14 @@ const AuthSupabaseService = {
     });
 
     if (error) {
-      const defaultPassword = getDefaultPassword(
-        userRecord?.user_identification || email
-      );
-      const passwordMatchesStored =
-        userRecord?.user_password && userRecord.user_password === password;
-      const passwordMatchesDefault =
-        !userRecord?.user_password && defaultPassword === password;
-
-      const canBootstrap =
-        userRecord &&
-        !userRecord.auth_user_id &&
-        (passwordMatchesStored || passwordMatchesDefault);
-
-      if (!canBootstrap) {
-        throw error;
-      }
-
-      const { data: signUpData, error: signUpError } =
-        await supabase.auth.signUp({
-          email: targetEmail,
-          password,
-        });
-
-      if (signUpError) {
-        throw error;
-      }
-
-      if (!signUpData?.session?.access_token) {
-        throw new Error(
-          "Cuenta creada. Revisa tu correo para activar el acceso."
-        );
-      }
-
-      if (signUpData?.user?.id) {
-        try {
-          await supabase
-            .from("users")
-            .update({ auth_user_id: signUpData.user.id })
-            .eq("user_email", targetEmail);
-        } catch (updateError) {
-          console.warn("[login] Failed to link auth_user_id", updateError);
-        }
-      }
-
-      const { data: profile, error: profileError } = await supabase
-        .from("users")
-        .select("*, profiles(*)")
-        .eq("user_email", targetEmail)
-        .single();
-
-      if (profileError) throw profileError;
-
-      return {
-        data: {
-          status: "Success",
-          data: {
-            user: profile,
-            access_token: signUpData.session.access_token,
-            lgnhist_id: null,
-          },
-        },
-      };
+      throw error;
     }
 
     const { data: profile, error: profileError } =
       await AuthSupabaseService.getUserProfile(data.user.id);
     if (profileError) throw profileError;
 
-    // Attempt to get the client's real IP for audit logging
-    let clientIp = 'unknown';
-    try {
-      const ipRes = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipRes.json();
-      clientIp = ipData.ip ?? 'unknown';
-    } catch {
-      clientIp = 'fetch-failed';
-    }
+    const clientIp = 'unknown';
 
     const { data: logData } = await supabase
       .from("login_history")

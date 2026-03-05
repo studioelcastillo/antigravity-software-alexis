@@ -167,7 +167,7 @@ export const PhotoRequestForm: React.FC<{ onClose: () => void, onSubmit: (data: 
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Modelos (Separadas por coma para múltiples solicitudes)</label>
                         <input
                             type="text"
-                            placeholder="Ej: Jennifer Zuluaga, Ana Acero..."
+                            placeholder="Ej: Nombre Apellido, Nombre Apellido..."
                             className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold outline-none focus:ring-4 focus:ring-amber-500/5 transition-all"
                             value={formData.models}
                             onChange={e => setFormData({...formData, models: e.target.value})}

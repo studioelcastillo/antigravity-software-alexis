@@ -94,7 +94,6 @@ const StorePage: React.FC = () => {
       try {
            const buyer_name = selectedUserName || sessionUser.name;
            await StoreService.checkout({
-               studio_id: '1',
                buyer_user_id: selectedUser,
                buyer_name: buyer_name,
               cost_center_id: selectedCostCenter,
@@ -124,9 +123,10 @@ const StorePage: React.FC = () => {
   const handleRequisition = async (productName: string) => {
       const reason = prompt("Describe la urgencia y motivo:");
       if (!reason) return;
+      const u = getStoredUser();
       await StoreService.createRequisition({
-          user_id: 1, // Mock current user
-          user_name: 'Admin',
+          user_id: u?.user_id ?? u?.id ?? 0,
+          user_name: `${u?.user_name ?? ''} ${u?.user_surname ?? ''}`.trim() || 'Usuario',
           product_name: productName,
           qty: 1,
           urgency: 'MEDIUM'

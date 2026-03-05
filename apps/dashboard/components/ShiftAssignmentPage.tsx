@@ -95,6 +95,11 @@ const ShiftAssignmentPage: React.FC = () => {
 
   const sundays = useMemo(() => days.filter(d => isSunday(d)), [days]);
 
+  // KPI calculations for the Dashboard tab
+  const totalMeta = useMemo(() => models.reduce((acc, m) => acc + (Number(m.target) || 0), 0), [models]);
+  const totalSold = useMemo(() => models.reduce((acc, m) => acc + (Number(m.current_sales) || 0), 0), [models]);
+  const pctAvance = useMemo(() => totalMeta > 0 ? ((totalSold / totalMeta) * 100).toFixed(1) : '0.0', [totalMeta, totalSold]);
+
   // Handlers
   const handleAttendanceAction = (id: string, action: 'pay' | 'waive') => {
     setAttendanceRecords(prev => prev.map(record => {
@@ -784,21 +789,21 @@ const ShiftAssignmentPage: React.FC = () => {
                   <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><Target size={20} /></div>
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Meta Total (Semana)</h3>
                 </div>
-                <p className="text-3xl font-black text-slate-800">$4,500</p>
+                <p className="text-3xl font-black text-slate-800">${totalMeta.toLocaleString()}</p>
               </div>
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><DollarSign size={20} /></div>
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Vendido Actual</h3>
                 </div>
-                <p className="text-3xl font-black text-emerald-600">$1,070</p>
+                <p className="text-3xl font-black text-emerald-600">${totalSold.toLocaleString()}</p>
               </div>
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><Activity size={20} /></div>
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">% Avance</h3>
                 </div>
-                <p className="text-3xl font-black text-amber-500">23.7%</p>
+                <p className="text-3xl font-black text-amber-500">{pctAvance}%</p>
               </div>
             </div>
 

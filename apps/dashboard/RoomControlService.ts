@@ -16,6 +16,7 @@ import {
 import { getStoredUser } from './session';
 
 const DEFAULT_STUDIO_ID = 1;
+const getStudioId = () => Number(getStoredUser()?.std_id || DEFAULT_STUDIO_ID);
 
 const toNumber = (value: any) => (Number.isFinite(Number(value)) ? Number(value) : 0);
 
@@ -114,7 +115,7 @@ const mapWarehouseMovement = (row: any, roomCodeMap: Map<number, string>): Wareh
 
 const RoomControlService = {
   async getRooms(filters: { date: string; shift: string; studioId: string }): Promise<Room[]> {
-    const stdId = Number(filters?.studioId) || DEFAULT_STUDIO_ID;
+    const stdId = Number(filters?.studioId) || getStudioId();
     const { data: roomsData, error } = await supabase
       .from('studios_rooms')
       .select(
@@ -237,7 +238,7 @@ const RoomControlService = {
   },
 
   async createRoom(roomData: Partial<Room>): Promise<Room> {
-    const stdId = DEFAULT_STUDIO_ID;
+    const stdId = getStudioId();
     const roomTypeId = roomData.type ? await resolveRoomTypeId(roomData.type, stdId) : null;
     const payload = {
       std_id: stdId,
@@ -275,7 +276,7 @@ const RoomControlService = {
   },
 
   async updateRoom(roomId: string, updates: Partial<Room>): Promise<Room | undefined> {
-    const stdId = DEFAULT_STUDIO_ID;
+    const stdId = getStudioId();
     const roomTypeId = updates.type ? await resolveRoomTypeId(updates.type, stdId) : null;
 
     if (updates.inventory) {
@@ -368,7 +369,7 @@ const RoomControlService = {
 
   async createWarehouseItem(item: Partial<WarehouseItem>): Promise<WarehouseItem> {
     const payload = {
-      std_id: DEFAULT_STUDIO_ID,
+      std_id: getStudioId(),
       item_name: item.name,
       item_category: item.category || 'General',
       item_brand: item.brand || null,
@@ -598,7 +599,7 @@ const RoomControlService = {
 
   async createAssignment(data: Partial<RoomAssignment>): Promise<RoomAssignment> {
     const payload = {
-      std_id: DEFAULT_STUDIO_ID,
+      std_id: getStudioId(),
       stdroom_id: data.room_id ? Number(data.room_id) : null,
       user_id_model: data.model_id || null,
       user_id_monitor: data.monitor_id || null,
@@ -905,7 +906,7 @@ const RoomControlService = {
     const rooms = await this.getRooms({
       date,
       shift,
-      studioId: String(DEFAULT_STUDIO_ID),
+      studioId: String(getStudioId()),
     });
     const validRooms = rooms.filter((room) => room.status !== 'INACTIVE');
     const total_active = validRooms.length;
@@ -1012,7 +1013,7 @@ const RoomControlService = {
       .from('room_types')
       .insert([
         {
-          std_id: DEFAULT_STUDIO_ID,
+          std_id: getStudioId(),
           room_type_name: data.name,
           room_type_description: data.description || null,
           room_type_active: data.is_active !== false,

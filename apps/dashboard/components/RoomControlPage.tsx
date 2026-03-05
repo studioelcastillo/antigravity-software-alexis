@@ -20,8 +20,11 @@ import RoomTypesModal from './RoomTypesModal';
 import DashboardConfigModal from './DashboardConfigModal';
 import OperationalAlertsModal from './OperationalAlertsModal';
 import Avatar from './Avatar';
+import { getStoredUser } from '../session';
 
 const RoomControlPage: React.FC = () => {
+  const sessionUser = getStoredUser();
+  const studioId = sessionUser?.std_id ? String(sessionUser.std_id) : '';
   const [rooms, setRooms] = useState<Room[]>([]);
   const [alerts, setAlerts] = useState<RoomAlert[]>([]);
   const [occupancyStats, setOccupancyStats] = useState({ total_active: 0, occupied: 0, available: 0, maintenance: 0, percentage: 0 });
@@ -55,7 +58,7 @@ const RoomControlPage: React.FC = () => {
   // Load Data
   const loadData = async () => {
     const [roomsData, alertsData, statsData] = await Promise.all([
-      RoomControlService.getRooms({ date: selectedDate, shift: selectedShift, studioId: '1' }),
+      RoomControlService.getRooms({ date: selectedDate, shift: selectedShift, studioId }),
       RoomControlService.getAlerts(),
       RoomControlService.getOccupancyStats(selectedDate, selectedShift)
     ]);

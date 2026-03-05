@@ -437,9 +437,7 @@ const PhotographyPage: React.FC = () => {
     // New States for Drive Sync & Notifications
     const [driveConnected, setDriveConnected] = useState(false);
     const [driveEmail, setDriveEmail] = useState('');
-    const [notifications, setNotifications] = useState<any[]>([
-        { id: 'n1', requestId: 'req-mock', modelName: 'Jennifer Zuluaga', message: 'Contenido de catÃ¡logo subido a Drive. Carpeta creada.', status: 'PENDING', date: new Date().toISOString() }
-    ]);
+    const [notifications, setNotifications] = useState<any[]>([]);
 
     // Initial Load
     useEffect(() => {
@@ -473,10 +471,7 @@ const PhotographyPage: React.FC = () => {
                 role: u.prof_name,
                 active: u.user_active
             }));
-            setTeam(photoTeam.length > 0 ? photoTeam : [
-                { id: 101, name: 'Carlos Foto', role: 'FOTOGRAFO', active: true },
-                { id: 102, name: 'Laura Video', role: 'FOTOGRAFO', active: true }
-            ]);
+            setTeam(photoTeam);
         } catch (error) {
             console.error("Error refreshing Photography data:", error);
         }
@@ -524,23 +519,8 @@ const PhotographyPage: React.FC = () => {
         if (!selectedRequest) return;
         await PhotoService.uploadAsset(selectedRequest.id, file);
 
-        // Simulate Google Drive Sync & Notification creation
-        const today = new Date().toISOString().split('T')[0];
-        const folderType = file.type.includes('video') ? 'Videos' : 'Fotos';
-        const path = `Liv-Stre / El Castillo / 1. El Castillo / ${selectedRequest.requester_name} / Shoot_${today} / ${folderType}`;
-
-        const newNotification = {
-            id: `notif_${Date.now()}`,
-            requestId: selectedRequest.id,
-            modelName: selectedRequest.requester_name,
-            message: `Nuevo contenido sincronizado en Drive (${driveEmail}). Ruta: ${path} / ${file.name}`,
-            status: 'PENDING',
-            date: new Date().toISOString()
-        };
-        setNotifications(prev => [newNotification, ...prev]);
-
         refreshData();
-        alert(`Archivo subido y sincronizado con Google Drive.\n\nRuta: ${path}\n\nNotificaciones enviadas a la modelo, monitor, monitor secundario, jefe de monitor y administrador.`);
+        alert('Archivo subido correctamente.');
     };
 
     const handleAcknowledgeNotification = (id: string) => {
@@ -943,12 +923,12 @@ const PhotographyPage: React.FC = () => {
                                 <span className="text-slate-500">ðŸ“</span> 1. El Castillo <span className="text-[9px] text-slate-500 font-sans font-normal">(Sede Principal)</span>
                             </div>
                             <div className="ml-12 flex items-center gap-2 border-l border-slate-700 pl-4 py-1 text-white font-bold">
-                                <span className="text-slate-500">ðŸ“</span> Jennifer Zuluaga <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded ml-2 font-sans">Tercero Creado</span>
+                                <span className="text-slate-500">ðŸ“</span> Modelo <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded ml-2 font-sans">Tercero Creado</span>
                             </div>
 
                             {/* Shoot 1 */}
                             <div className="ml-16 flex items-center gap-2 border-l border-slate-700 pl-4 py-1">
-                                <span className="text-slate-500">ðŸ“</span> Shoot_2026-02-25
+                                <span className="text-slate-500">ðŸ“</span> Shoot_YYYY-MM-DD
                             </div>
                             <div className="ml-20 flex items-center gap-2 border-l border-slate-700 pl-4 py-1">
                                 <span className="text-slate-500">ðŸ“</span> Fotos
@@ -965,7 +945,7 @@ const PhotographyPage: React.FC = () => {
 
                             {/* Shoot 2 (Ejemplo de otra fecha) */}
                             <div className="ml-16 flex items-center gap-2 border-l border-slate-700 pl-4 py-1 mt-2">
-                                <span className="text-slate-500">ðŸ“</span> Shoot_2026-03-10 <span className="text-[9px] text-slate-500 font-sans font-normal">(Nueva fecha)</span>
+                                <span className="text-slate-500">ðŸ“</span> Shoot_YYYY-MM-DD <span className="text-[9px] text-slate-500 font-sans font-normal">(Nueva fecha)</span>
                             </div>
                             <div className="ml-20 flex items-center gap-2 border-l border-slate-700 pl-4 py-1">
                                 <span className="text-slate-500">ðŸ“</span> Fotos

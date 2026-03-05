@@ -100,7 +100,6 @@ const StorefrontPage: React.FC = () => {
 
     try {
         await StoreService.checkout({
-            studio_id: '1',
             buyer_user_id: currentUser.user_id,
             buyer_name: currentUser.user_name || 'Usuario',
             // Cost Center assigned automatically in backend logic (StoreService)
