@@ -37,6 +37,7 @@ yarn-error.log*
 .env.production
 .env.staging
 .env.tmp
+.npmrc.bak
 castillo_prod_aws.sql.txt
 /apps/**/.env
 /apps/**/.env.*
