@@ -3,9 +3,8 @@
 -- Ejecutar en: Dashboard Supabase > SQL Editor
 -- Proyecto: wukvaemawvjavwqocxyb (El_Castillo_BaseDatos)
 -- ==========================================================
--- ESTRATEGIA: Permitir acceso completo a usuarios autenticados.
--- Esto replica el comportamiento del API Laravel original
--- donde la autenticación era el único control de acceso.
+-- ESTRATEGIA: Acceso total solo para super admins.
+-- El resto de usuarios depende de políticas específicas por tabla.
 -- ==========================================================
 
 -- ════════════════════════════════════════════════════════════
@@ -64,9 +63,22 @@ CREATE TABLE IF NOT EXISTS payroll_transactions (
 );
 
 -- ════════════════════════════════════════════════════════════
--- PASO 1: ELIMINAR TODAS LAS POLÍTICAS EXISTENTES
--- (evitar conflictos con policies previas del schema.sql)
+-- PASO 1: DEFINIR HELPERS Y LIMPIAR POLÍTICAS DEMASIADO ABIERTAS
 -- ════════════════════════════════════════════════════════════
+
+CREATE OR REPLACE FUNCTION public.is_super_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.users
+    WHERE auth_user_id = auth.uid()
+      AND prof_id IN (1, 11)
+  );
+$$;
 
 DO $$
 DECLARE
@@ -76,6 +88,7 @@ BEGIN
     SELECT schemaname, tablename, policyname
     FROM pg_policies
     WHERE schemaname = 'public'
+      AND policyname = 'authenticated_full_access'
   ) LOOP
     EXECUTE format('DROP POLICY IF EXISTS %I ON %I.%I', r.policyname, r.schemaname, r.tablename);
   END LOOP;
@@ -124,168 +137,66 @@ ALTER TABLE IF EXISTS payroll_concepts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS payroll_transactions ENABLE ROW LEVEL SECURITY;
 
 -- ════════════════════════════════════════════════════════════
--- PASO 3: CREAR POLÍTICA DE ACCESO COMPLETO PARA AUTENTICADOS
--- Cada tabla obtiene una política que permite SELECT, INSERT,
--- UPDATE, DELETE a cualquier usuario con sesión activa.
+-- PASO 3: ACCESO TOTAL SOLO PARA SUPER ADMINS
+-- Las políticas específicas por tabla deben coexistir con esta.
 -- ════════════════════════════════════════════════════════════
 
--- ── Configuración y Catálogos ──────────────────────────────
-
-CREATE POLICY "authenticated_full_access" ON profiles
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON users
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON users_permissions2
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON accounts
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON settings
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON locations
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON categories
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON transactions_types
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON exchange_rates
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON periods
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON products
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON terceros
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
--- ── Estudios ───────────────────────────────────────────────
-
-CREATE POLICY "authenticated_full_access" ON studios
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON studios_accounts
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON studios_rooms
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON studios_shifts
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON studios_models
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
--- ── Modelos ────────────────────────────────────────────────
-
-CREATE POLICY "authenticated_full_access" ON models_accounts
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON models_goals
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON models_transactions
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON models_streams_files
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON models_streams
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON models_streams_customers
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
--- ── Comisiones y Pagos ─────────────────────────────────────
-
-CREATE POLICY "authenticated_full_access" ON commissions
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON bank_accounts
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON payments
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON payment_files
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON paysheets
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
--- ── Transacciones ──────────────────────────────────────────
-
-CREATE POLICY "authenticated_full_access" ON transactions
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
--- ── Notificaciones y Peticiones ────────────────────────────
-
-CREATE POLICY "authenticated_full_access" ON notifications
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON petitions
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
--- ── Logs y Auditoría ───────────────────────────────────────
-
-CREATE POLICY "authenticated_full_access" ON logs
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON login_history
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON payroll_periods
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON payroll_concepts
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON payroll_transactions
-  FOR ALL TO authenticated
-  USING (true) WITH CHECK (true);
+DO $$
+DECLARE
+  t TEXT;
+  tables TEXT[] := ARRAY[
+    'profiles',
+    'users',
+    'users_permissions2',
+    'accounts',
+    'settings',
+    'locations',
+    'categories',
+    'transactions_types',
+    'exchange_rates',
+    'periods',
+    'products',
+    'terceros',
+    'studios',
+    'studios_accounts',
+    'studios_rooms',
+    'studios_shifts',
+    'studios_models',
+    'models_accounts',
+    'models_goals',
+    'models_transactions',
+    'models_streams_files',
+    'models_streams',
+    'models_streams_customers',
+    'commissions',
+    'bank_accounts',
+    'payments',
+    'payment_files',
+    'paysheets',
+    'transactions',
+    'notifications',
+    'petitions',
+    'logs',
+    'login_history',
+    'payroll_periods',
+    'payroll_concepts',
+    'payroll_transactions'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tables LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies
+      WHERE schemaname = 'public'
+        AND tablename = t
+        AND policyname = 'admin_full_access'
+    ) THEN
+      EXECUTE format(
+        'CREATE POLICY admin_full_access ON %I FOR ALL TO authenticated USING (public.is_super_admin()) WITH CHECK (public.is_super_admin());',
+        t
+      );
+    END IF;
+  END LOOP;
+END $$;
 
 -- ════════════════════════════════════════════════════════════
 -- PASO 4: CONFIGURAR STORAGE BUCKET
@@ -295,15 +206,22 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('el-castillo', 'el-castillo', true)
 ON CONFLICT (id) DO NOTHING;
 
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS authenticated_upload ON storage.objects;
+DROP POLICY IF EXISTS authenticated_update ON storage.objects;
+DROP POLICY IF EXISTS authenticated_delete ON storage.objects;
+DROP POLICY IF EXISTS public_read ON storage.objects;
+
 -- Permitir a usuarios autenticados subir archivos
 CREATE POLICY "authenticated_upload" ON storage.objects
   FOR INSERT TO authenticated
-  WITH CHECK (bucket_id = 'el-castillo');
+  WITH CHECK (bucket_id = 'el-castillo' AND (owner = auth.uid() OR public.is_super_admin()));
 
 -- Permitir a usuarios autenticados actualizar sus archivos
 CREATE POLICY "authenticated_update" ON storage.objects
   FOR UPDATE TO authenticated
-  USING (bucket_id = 'el-castillo');
+  USING (bucket_id = 'el-castillo' AND (owner = auth.uid() OR public.is_super_admin()));
 
 -- Permitir lectura pública de archivos del bucket
 CREATE POLICY "public_read" ON storage.objects
@@ -313,7 +231,7 @@ CREATE POLICY "public_read" ON storage.objects
 -- Permitir a autenticados eliminar archivos
 CREATE POLICY "authenticated_delete" ON storage.objects
   FOR DELETE TO authenticated
-  USING (bucket_id = 'el-castillo');
+  USING (bucket_id = 'el-castillo' AND (owner = auth.uid() OR public.is_super_admin()));
 
 -- ════════════════════════════════════════════════════════════
 -- VERIFICACIÓN: Consultar que todas las tablas tienen RLS

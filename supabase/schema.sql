@@ -1,7 +1,7 @@
 -- ==========================================================
 -- EL CASTILLO GROUP SAS — Supabase Database Schema
 -- Generado automáticamente desde los servicios del proyecto
--- URL: https://ysorlqfwqccsgxxkpzdx.supabase.co
+-- URL: https://wukvaemawvjavwqocxyb.supabase.co
 -- ==========================================================
 
 -- Habilitar extensiones necesarias

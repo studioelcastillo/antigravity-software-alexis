@@ -4,6 +4,20 @@
 -- Proyecto: wukvaemawvjavwqocxyb (El_Castillo_BaseDatos)
 -- ==========================================================
 
+CREATE OR REPLACE FUNCTION public.is_super_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.users
+    WHERE auth_user_id = auth.uid()
+      AND prof_id IN (1, 11)
+  );
+$$;
+
 -- ════════════════════════════════════════════════════════════
 -- PASO 1: CREAR TABLAS
 -- ════════════════════════════════════════════════════════════
@@ -63,14 +77,28 @@ ALTER TABLE api_modules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_permissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_user_overrides ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "authenticated_full_access" ON api_modules
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS authenticated_full_access ON api_modules;
+DROP POLICY IF EXISTS authenticated_full_access ON api_permissions;
+DROP POLICY IF EXISTS authenticated_full_access ON api_user_overrides;
 
-CREATE POLICY "authenticated_full_access" ON api_permissions
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "authenticated_full_access" ON api_user_overrides
-  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'api_modules' AND policyname = 'admin_full_access'
+  ) THEN
+    EXECUTE 'CREATE POLICY admin_full_access ON api_modules FOR ALL TO authenticated USING (public.is_super_admin()) WITH CHECK (public.is_super_admin())';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'api_permissions' AND policyname = 'admin_full_access'
+  ) THEN
+    EXECUTE 'CREATE POLICY admin_full_access ON api_permissions FOR ALL TO authenticated USING (public.is_super_admin()) WITH CHECK (public.is_super_admin())';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'api_user_overrides' AND policyname = 'admin_full_access'
+  ) THEN
+    EXECUTE 'CREATE POLICY admin_full_access ON api_user_overrides FOR ALL TO authenticated USING (public.is_super_admin()) WITH CHECK (public.is_super_admin())';
+  END IF;
+END $$;
 
 -- ════════════════════════════════════════════════════════════
 -- PASO 3: POBLAR MÓDULOS
